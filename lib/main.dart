@@ -1,21 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'package:http/http.dart' as http;
+import 'DictionaryService.dart';
 
 void main() => runApp(TranslaterApp());
 
 class TranslaterApp extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
+    final titleStyle = TextStyle(fontSize: 21.0); // flutters default sizing is off
     return CupertinoApp(
-      title: 'Translater',
-      home: CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(middle: Text('Translater')),
-        child: SafeArea(top: true, bottom: false, child: SearchWidget())
-      )
-    );
+        title: 'Translater',
+        home: CupertinoPageScaffold(
+            navigationBar: CupertinoNavigationBar(
+                middle: Text('Translater', style: titleStyle)),
+            child: SafeArea(top: true, bottom: false, child: SearchWidget())));
   }
 }
 
@@ -25,69 +24,89 @@ class SearchWidget extends StatefulWidget {
 }
 
 class SearchWidgetState extends State<SearchWidget> {
-
+  DictionaryService _service;
   TextEditingController _textController;
+  List<Entry> _entries = [];
   bool _isLoading = false;
-  String result = "";
 
   @override
   void initState() {
     super.initState();
+    _service = DictionaryService('en', 'de');
     _textController = TextEditingController();
   }
 
   @override
   Widget build(BuildContext context) {
-    
-    double spinnerOpacity = _isLoading ? 1.0 : 0.0;
+    final content = _isLoading ? _buildLoadingWidget() : _buildList();
+    return Column(children: <Widget>[
+      Padding(
+          padding: EdgeInsets.all(10.0),
+          child: CupertinoTextField(
+              controller: _textController,
+              placeholder: 'EN > DE',
+              clearButtonMode: OverlayVisibilityMode.editing,
+              autocorrect: false,
+              autofocus: true,
+              padding: EdgeInsets.all(5.0),
+              onSubmitted: _lookup)),
+      Divider(height: 1.0),
+      content
+    ]);
+  }
 
-    return Container(
-      alignment: Alignment.center,
-      padding: EdgeInsets.symmetric(horizontal: 50.0),
-      child: Column(
-        children: <Widget>[
-          CupertinoTextField(
-            controller: _textController, 
-            placeholder: "DE > EN",
-            autocorrect: false,
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: const Color(0xff333333),
-                width: 1.0,
-              ),
-            ),
-            onSubmitted: _translate),
-            Opacity(
-              opacity: spinnerOpacity, 
-              child: Padding(
-                padding: EdgeInsets.all(10.0),
-                child: CupertinoActivityIndicator()
-              )
-            ),
-            Text(result)
-        ])
+  void _lookup(String query) {
+    setState(() {
+      _isLoading = true;
+    });
+
+    _service.getEntries(query).then((entries) {
+      if (entries.length == 1) {
+        _select(entries.first);
+      } else {
+        setState(() {
+          _isLoading = false;
+          _entries = entries;
+        });
+      }
+    });
+  }
+
+  void _select(Entry entry) {
+    setState(() {
+      _isLoading = true;
+    });
+
+    _service.getTranslations(entry).then((translations) {
+      setState(() {
+        _isLoading = false;
+        _entries = translations;
+      });
+    });
+  }
+
+  Widget _buildList() {
+    if (_entries.isEmpty) {
+      return Placeholder();
+    }
+
+    return ListView.separated(
+      padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+      itemBuilder: (_, int index) => _buildListEntry(index),
+      separatorBuilder: (_, _alreadydefinedwtf) => Divider(height: 1.0),
+      itemCount: _entries.length,
     );
   }
 
-  void _translate(String word) {
+  Widget _buildListEntry(int index) {
+    Entry entry = _entries[index];
+    return Text(entry.word);
+  }
 
-    String url = "https://od-api.oxforddictionaries.com:443/api/v1/entries/de/$word/translations=en";
-
-    print(url);
-
-    Map<String, String> headers =  {
-      "Accept": "application/json",
-      "app_id": "59a12a71",
-      "app_key": "8d12fd6f89f0e8e76d6a039dbccf0bd0"
-    };
-
-    setState(() {  _isLoading = true; });
-
-    http.get(url, headers: headers).then((res) { 
-      setState(() {  
-        _isLoading = false;
-        result = res.body;
-      });
-    });
+  Widget _buildLoadingWidget() {
+    return Expanded(
+        child: Container(
+            child: Center(child: CupertinoActivityIndicator()),
+            color: Colors.black.withAlpha(100)));
   }
 }
