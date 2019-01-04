@@ -9,7 +9,7 @@ import '../model/TranslationResponse.dart';
 class DictionaryService {
 
   // Singleton
-  static final DictionaryService shared = DictionaryService._private();
+  static final DictionaryService instance = DictionaryService._private();
   DictionaryService._private();
 
   Future<List<SearchResult>> searchHeadwords(Configuration config, String query) async {

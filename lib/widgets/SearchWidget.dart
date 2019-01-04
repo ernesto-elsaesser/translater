@@ -80,7 +80,7 @@ class SearchWidgetState extends State<SearchWidget> {
       _activeConfig = config;
       _selectedResult = null;
     });
-    DictionaryService.shared.searchHeadwords(config, query).then((results) {
+    DictionaryService.instance.searchHeadwords(config, query).then((results) {
       final items = results.map((r) {
         return ListItem(
           title: r.word, 
@@ -99,7 +99,7 @@ class SearchWidgetState extends State<SearchWidget> {
       _isLoading = true;
       _selectedResult = result;
     });
-    DictionaryService.shared.getTranslations(_activeConfig, result).then((translations) {
+    DictionaryService.instance.getTranslations(_activeConfig, result).then((translations) {
       final items = translations.map((t) {
         return ListItem(
           title: t.text, 
@@ -114,17 +114,18 @@ class SearchWidgetState extends State<SearchWidget> {
   }
 
   void _toggleVocabulary(Translation trans) {
-    bool known = VocabularyService.shared.inVocabulary(trans.text, trans.language);
+    VocabularyService vocabulary = VocabularyService.instance;
+    bool known = vocabulary.contains(trans.text, trans.language);
     if (known) {
-      VocabularyService.shared.unlearn(trans.text, trans.language);
+      vocabulary.unlearn(trans.text, trans.language);
     } else {
-      VocabularyService.shared.learn(_selectedResult.word, trans.text, _activeConfig);
+      vocabulary.learn(_selectedResult.word, trans.text, _activeConfig);
     }
     setState(() {}); // rebuild widget to update list icons
   }
 
   Icon _vocabularyIcon(Translation trans) {
-    bool known = VocabularyService.shared.inVocabulary(trans.text, trans.language);
+    bool known = VocabularyService.instance.contains(trans.text, trans.language);
     IconData data = known ? CupertinoIcons.add_circled_solid : CupertinoIcons.add_circled;
     return Icon(data, color: bgColor);
   }
