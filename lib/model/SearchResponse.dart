@@ -1,19 +1,19 @@
-
 class SearchResponse {
-	List<SearchResult> results;
+  List<SearchResult> results;
 
-	SearchResponse({this.results});
+  SearchResponse({this.results});
 
-	SearchResponse.fromJson(Map<String, dynamic> json) {
-		if (json['results'] != null) {
-			results = List<SearchResult>();
-			json['results'].forEach((v) { results.add(SearchResult.fromJson(v)); });
-		}
-	}
+  SearchResponse.fromJson(Map<String, dynamic> json) {
+    if (json['results'] != null) {
+      results = List<SearchResult>();
+      json['results'].forEach((v) {
+        results.add(SearchResult.fromJson(v));
+      });
+    }
+  }
 }
 
-class SearchResult
-{
+class SearchResult {
   String matchString;
   String matchType;
   String word;
@@ -21,7 +21,7 @@ class SearchResult
   String inflectionId;
   String id;
   double score;
-    
+
   SearchResult(
       {this.matchString,
       this.matchType,

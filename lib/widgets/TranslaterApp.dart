@@ -9,7 +9,6 @@ class TranslaterApp extends StatefulWidget {
 }
 
 class TranslaterAppState extends State<TranslaterApp> {
-
   @override
   void initState() {
     super.initState();
@@ -20,18 +19,10 @@ class TranslaterAppState extends State<TranslaterApp> {
   Widget build(BuildContext context) {
     final titleStyle = TextStyle(fontSize: 21.0);
     return CupertinoApp(
-      title: 'Translater',
-      home: CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: Text('Translater', 
-            style: titleStyle)
-          ),
-        child: SafeArea(
-          top: true, 
-          bottom: false, 
-          child: SearchWidget()
-        )
-      )
-    );
+        title: 'Translater',
+        home: CupertinoPageScaffold(
+            navigationBar: CupertinoNavigationBar(
+                middle: Text('Translater', style: titleStyle)),
+            child: SafeArea(top: true, bottom: false, child: SearchWidget())));
   }
 }

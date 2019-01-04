@@ -12,7 +12,7 @@ class SearchWidget extends StatefulWidget {
 }
 
 class SearchWidgetState extends State<SearchWidget> {
-
+  
   bool _isLoading = false;
   List<ListItem> _listItems = [];
   SearchResult _selectedResult;
@@ -22,32 +22,35 @@ class SearchWidgetState extends State<SearchWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final searchBar = Container(
+        padding: EdgeInsets.all(10.0),
+        color: bgColor,
+        child: Row(children: <Widget>[
+          _buildSearchField(Configuration.fromENtoDE),
+          SizedBox(width: 10.0),
+          _buildSearchField(Configuration.fromDEtoEN)
+        ]));
 
-    Widget searchBar = Container(
-      padding: EdgeInsets.all(10.0),
-      color: bgColor,
-      child: Row(children: <Widget>[
-        _buildSearchField(Configuration.fromENtoDE),
-        SizedBox(width: 10.0),
-        _buildSearchField(Configuration.fromDEtoEN)
-      ]));
-
-    List<Widget> content = [searchBar];
+    List<Widget> sections = [searchBar];
 
     if (_selectedResult != null) {
-      Container selectionBar = Container(
-        color: Color(0xFFEEEEEE),
-        padding: EdgeInsets.all(10.0),
-        child: Center(
-          child: Text("$_activeConfig: ${_selectedResult.word}")
-        )
-      );
-      content.add(selectionBar);
+      final selectionText = "$_activeConfig: ${_selectedResult.word}";
+      final selectionBar = Container(
+          color: Color(0xFFEEEEEE),
+          padding: EdgeInsets.all(10.0),
+          child: Center(child: Text(selectionText)));
+      sections.add(selectionBar);
     }
 
-    content.add(_buildResults());
+    if (_isLoading) {
+      final loadingIndicator = Expanded(
+          child: Center(child: CupertinoActivityIndicator(radius: 15.0)));
+      sections.add(loadingIndicator);
+    } else {
+      sections.add(ResultsWidget(_listItems));
+    }
 
-    return Column(children: content);
+    return Column(children: sections);
   }
 
   Widget _buildSearchField(Configuration config) {
@@ -63,17 +66,6 @@ class SearchWidgetState extends State<SearchWidget> {
                 onSubmitted: (q) => _lookup(config, q))));
   }
 
-  Widget _buildResults() {
-    if (_isLoading) {
-      return Expanded(
-        child: Center(
-          child: CupertinoActivityIndicator(
-            radius: 15.0)));
-    } else {
-      return ResultsWidget(_listItems);
-    }
-  }
-
   void _lookup(Configuration config, String query) {
     setState(() {
       _isLoading = true;
@@ -83,9 +75,9 @@ class SearchWidgetState extends State<SearchWidget> {
     DictionaryService.instance.searchHeadwords(config, query).then((results) {
       final items = results.map((r) {
         return ListItem(
-          title: r.word, 
-          iconBuilder: (_) => Icon(CupertinoIcons.forward, color: bgColor), 
-          onTap: () => _select(r));
+            title: r.word,
+            iconBuilder: (_) => Icon(CupertinoIcons.forward, color: bgColor),
+            onTap: () => _select(r));
       }).toList();
       setState(() {
         _isLoading = false;
@@ -99,12 +91,14 @@ class SearchWidgetState extends State<SearchWidget> {
       _isLoading = true;
       _selectedResult = result;
     });
-    DictionaryService.instance.getTranslations(_activeConfig, result).then((translations) {
+    DictionaryService.instance
+        .getTranslations(_activeConfig, result)
+        .then((translations) {
       final items = translations.map((t) {
         return ListItem(
-          title: t.text, 
-          iconBuilder: (_) => _vocabularyIcon(t), 
-          onTap: () => _toggleVocabulary(t));
+            title: t.text,
+            iconBuilder: (_) => _vocabularyIcon(t),
+            onTap: () => _toggleVocabulary(t));
       }).toList();
       setState(() {
         _isLoading = false;
@@ -114,8 +108,8 @@ class SearchWidgetState extends State<SearchWidget> {
   }
 
   void _toggleVocabulary(Translation trans) {
-    VocabularyService vocabulary = VocabularyService.instance;
-    bool known = vocabulary.contains(trans.text, trans.language);
+    final vocabulary = VocabularyService.instance;
+    final known = vocabulary.contains(trans.text, trans.language);
     if (known) {
       vocabulary.unlearn(trans.text, trans.language);
     } else {
@@ -125,8 +119,10 @@ class SearchWidgetState extends State<SearchWidget> {
   }
 
   Icon _vocabularyIcon(Translation trans) {
-    bool known = VocabularyService.instance.contains(trans.text, trans.language);
-    IconData data = known ? CupertinoIcons.add_circled_solid : CupertinoIcons.add_circled;
+    final known =
+        VocabularyService.instance.contains(trans.text, trans.language);
+    final data =
+        known ? CupertinoIcons.add_circled_solid : CupertinoIcons.add_circled;
     return Icon(data, color: bgColor);
   }
 }
