@@ -32,52 +32,70 @@ class ListItem {
 }
 
 class SearchWidgetState extends State<SearchWidget> {
-  DictionaryService _service;
-  TextEditingController _textController;
+  DictionaryService _service = DictionaryService();
+  Configuration _confENtoDE = Configuration(Languages.en, Languages.de);
+  Configuration _confDEtoEN = Configuration(Languages.de, Languages.en);
   List<ListItem> _listItems = [];
   bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _service = DictionaryService('en', 'de');
-    _textController = TextEditingController();
-  }
 
   @override
   Widget build(BuildContext context) {
     final content = _isLoading ? _buildLoadingWidget() : _buildList();
     return Column(children: <Widget>[
-      Padding(
+      Container(
           padding: EdgeInsets.all(10.0),
-          child: CupertinoTextField(
-              controller: _textController,
-              placeholder: 'EN > DE',
-              style: _contentStyle(),
-              clearButtonMode: OverlayVisibilityMode.editing,
-              autocorrect: false,
-              autofocus: true,
-              padding: EdgeInsets.all(10.0),
-              onSubmitted: _lookup)),
-      Divider(height: 1.0),
+          color: Colors.black.withAlpha(50),
+          child: Row(children: <Widget>[
+            _buildSearchField(_confENtoDE),
+            SizedBox(width: 10.0),
+            _buildSearchField(_confDEtoEN)
+          ])),
       content
     ]);
   }
 
-  void _lookup(String query) {
-    setState(() { _isLoading = true; });
-    _service.searchHeadwords(query).then((results) {
-      final items = results.map( (r) => ListItem(r.word, () => _select(r)) ).toList();
-      setState(() {  _isLoading = false; _listItems = items; });
+  void _lookup(Configuration config, String query) {
+    setState(() {
+      _isLoading = true;
+    });
+    _service.searchHeadwords(config, query).then((results) {
+      final items = results.map((r) {
+        return ListItem(r.word, () => _select(config, r));
+      }).toList();
+      setState(() {
+        _isLoading = false;
+        _listItems = items;
+      });
     });
   }
 
-  void _select(SearchResult result) {
-    setState(() { _isLoading = true; });
-    _service.getTranslations(result).then((translations) {
-      final items = translations.map( (t) => ListItem(t.text, null) ).toList();
-      setState(() {  _isLoading = false; _listItems = items; });
+  void _select(Configuration config, SearchResult result) {
+    setState(() {
+      _isLoading = true;
     });
+    _service.getTranslations(config, result).then((translations) {
+      final items = translations.map((t) => ListItem(t.text, null)).toList();
+      setState(() {
+        _isLoading = false;
+        _listItems = items;
+      });
+    });
+  }
+
+  Widget _buildSearchField(Configuration config) {
+    return Expanded(child: Container(
+      color: CupertinoColors.white,
+      child: CupertinoTextField(
+        placeholder: '${config.from.toUpperCase()} > ${config.to.toUpperCase()}',
+        style: _contentStyle(),
+        decoration: null,
+        clearButtonMode: OverlayVisibilityMode.editing,
+        autocorrect: false,
+        padding: EdgeInsets.all(10.0),
+        onSubmitted: (q) => _lookup(config, q)
+        )
+      )
+    );
   }
 
   Widget _buildList() {
@@ -85,33 +103,33 @@ class SearchWidgetState extends State<SearchWidget> {
       return Container();
     }
 
-    return Flexible(child:
-      ListView.separated(
-        itemBuilder: (_, int i) => _buildListItem(i),
-        separatorBuilder: (_, __) => Divider(height: 1.0),
-        itemCount: _listItems.length,
-      )
-    );
+    return Flexible(
+        child: ListView.separated(
+      itemBuilder: (_, int i) => _buildListItem(i),
+      separatorBuilder: (_, __) => Divider(height: 1.0),
+      itemCount: _listItems.length,
+    ));
   }
 
   Widget _buildListItem(int i) {
     ListItem item = _listItems[i];
     return GestureDetector(
-      onTap: item.onTap,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
-        child: Text(item.title, style: _contentStyle())
-      )
-    );
+        onTap: item.onTap,
+        child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+            child: Text(item.title, style: _contentStyle())));
   }
 
   Widget _buildLoadingWidget() {
     return Expanded(
-        child: Center(
-          child: CupertinoActivityIndicator(radius: 20.0)));
+        child: Center(child: CupertinoActivityIndicator(radius: 15.0)));
   }
 
   TextStyle _contentStyle() {
-    return TextStyle(color: Colors.black, fontSize: 18.0, fontWeight: FontWeight.w500);
+    return TextStyle(
+        color: CupertinoColors.black,
+        fontFamily: '.SF Pro Text',
+        fontSize: 18.0,
+        fontWeight: FontWeight.w500);
   }
 }

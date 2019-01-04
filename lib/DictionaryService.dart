@@ -4,24 +4,33 @@ import 'package:http/http.dart' as http;
 
 import 'Model.dart';
 
-class DictionaryService {
+class Languages {
+  static String en = "en";
+  static String de = "de";
+}
 
+class Configuration {
   String from;
   String to;
 
-  DictionaryService(this.from, this.to);
+  Configuration(this.from, this.to);
+}
 
-  Future<List<SearchResult>> searchHeadwords(String query) async {
+class DictionaryService {
 
-    String path = 'search/$from?q=$query&prefix=true';
+  DictionaryService();
+
+  Future<List<SearchResult>> searchHeadwords(Configuration config, String query) async {
+
+    String path = 'search/${config.from}/translations=${config.to}?q=$query&prefix=true';
     Map<String,dynamic> json = await _request(path);
     SearchResponse res = SearchResponse.fromJson(json);
     return res.results;
   }
 
-  Future<List<Translation>> getTranslations(SearchResult result) async {
+  Future<List<Translation>> getTranslations(Configuration config, SearchResult result) async {
 
-    String path = 'entries/$from/${result.id}/translations=$to';
+    String path = 'entries/${config.from}/${result.id}/translations=${config.to}';
     Map<String,dynamic> json = await _request(path);
     TranslationsResponse res = TranslationsResponse.fromJson(json);
     return res.results
