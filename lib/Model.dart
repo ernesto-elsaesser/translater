@@ -221,19 +221,14 @@ class Pronunciation {
 }
 
 class Sense {
-	//List<String> crossReferenceMarkers;
-	//List<CrossReference> crossReferences;
 	List<String> definitions;
 	List<Example> examples;
 	String id;
 	List<Note> notes;
-	//List<Pronunciation> pronunciations;
-	//List<String> registers;
 	List<String> shortDefinitions;
 	List<Sense> subsenses;
 	List<ThesaurusLink> thesaurusLinks;
 	List<Translation> translations;
-	//List<VariantForm> variantForms;
 
 	Sense({this.definitions, this.examples, this.id, this.notes, this.shortDefinitions, this.subsenses, this.thesaurusLinks, this.translations});
 
@@ -265,20 +260,6 @@ class Sense {
 			thesaurusLinks = List<ThesaurusLink>();
 			json['thesaurusLinks'].forEach((v) { thesaurusLinks.add(ThesaurusLink.fromJson(v)); });
 		}
-	}
-}
-
-class CrossReference {
-	String id;
-	String text;
-	String type;
-
-	CrossReference({this.id, this.text, this.type});
-
-	CrossReference.fromJson(Map<String, dynamic> json) {
-		id = json['id'];
-		text = json['text'];
-		type = json['type'];
 	}
 }
 

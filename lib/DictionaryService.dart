@@ -4,14 +4,12 @@ import 'package:http/http.dart' as http;
 
 import 'Model.dart';
 
-class Languages {
-  static String en = "en";
-  static String de = "de";
-}
-
 class Configuration {
   String from;
   String to;
+
+  static Configuration fromDEtoEN = Configuration("de", "en");
+  static Configuration fromENtoDE = Configuration("en", "de");
 
   Configuration(this.from, this.to);
 }
