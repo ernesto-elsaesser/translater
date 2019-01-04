@@ -6,4 +6,9 @@ class Configuration {
   static Configuration fromENtoDE = Configuration._private("en", "de");
 
   Configuration._private(this.from, this.to);
+
+  @override
+  String toString() {
+    return '${from.toUpperCase()} > ${to.toUpperCase()}';
+  }
 }

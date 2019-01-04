@@ -15,21 +15,39 @@ class SearchWidgetState extends State<SearchWidget> {
 
   bool _isLoading = false;
   List<ListItem> _listItems = [];
+  SearchResult _selectedResult;
+  Configuration _activeConfig;
+
   final Color bgColor = const Color(0xFFBBBBBB);
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: <Widget>[
-      Container(
-          padding: EdgeInsets.all(10.0),
-          color: bgColor,
-          child: Row(children: <Widget>[
-            _buildSearchField(Configuration.fromENtoDE),
-            SizedBox(width: 10.0),
-            _buildSearchField(Configuration.fromDEtoEN)
-          ])),
-      _buildResults()
-    ]);
+
+    Widget searchBar = Container(
+      padding: EdgeInsets.all(10.0),
+      color: bgColor,
+      child: Row(children: <Widget>[
+        _buildSearchField(Configuration.fromENtoDE),
+        SizedBox(width: 10.0),
+        _buildSearchField(Configuration.fromDEtoEN)
+      ]));
+
+    List<Widget> content = [searchBar];
+
+    if (_selectedResult != null) {
+      Container selectionBar = Container(
+        color: Color(0xFFEEEEEE),
+        padding: EdgeInsets.all(10.0),
+        child: Center(
+          child: Text("$_activeConfig: ${_selectedResult.word}")
+        )
+      );
+      content.add(selectionBar);
+    }
+
+    content.add(_buildResults());
+
+    return Column(children: content);
   }
 
   Widget _buildSearchField(Configuration config) {
@@ -37,8 +55,7 @@ class SearchWidgetState extends State<SearchWidget> {
         child: Container(
             color: CupertinoColors.white,
             child: CupertinoTextField(
-                placeholder:
-                    '${config.from.toUpperCase()} > ${config.to.toUpperCase()}',
+                placeholder: config.toString(),
                 decoration: null,
                 clearButtonMode: OverlayVisibilityMode.editing,
                 autocorrect: false,
@@ -60,13 +77,15 @@ class SearchWidgetState extends State<SearchWidget> {
   void _lookup(Configuration config, String query) {
     setState(() {
       _isLoading = true;
+      _activeConfig = config;
+      _selectedResult = null;
     });
     DictionaryService.shared.searchHeadwords(config, query).then((results) {
       final items = results.map((r) {
         return ListItem(
           title: r.word, 
           iconBuilder: (_) => Icon(CupertinoIcons.forward, color: bgColor), 
-          onTap: () => _select(config, r));
+          onTap: () => _select(r));
       }).toList();
       setState(() {
         _isLoading = false;
@@ -75,16 +94,17 @@ class SearchWidgetState extends State<SearchWidget> {
     });
   }
 
-  void _select(Configuration config, SearchResult result) {
+  void _select(SearchResult result) {
     setState(() {
       _isLoading = true;
+      _selectedResult = result;
     });
-    DictionaryService.shared.getTranslations(config, result).then((translations) {
+    DictionaryService.shared.getTranslations(_activeConfig, result).then((translations) {
       final items = translations.map((t) {
         return ListItem(
           title: t.text, 
           iconBuilder: (_) => _vocabularyIcon(t), 
-          onTap: () => _toggleVocabulary(config, result, t));
+          onTap: () => _toggleVocabulary(t));
       }).toList();
       setState(() {
         _isLoading = false;
@@ -93,12 +113,12 @@ class SearchWidgetState extends State<SearchWidget> {
     });
   }
 
-  void _toggleVocabulary(Configuration config, SearchResult result, Translation trans) {
+  void _toggleVocabulary(Translation trans) {
     bool known = VocabularyService.shared.inVocabulary(trans.text, trans.language);
     if (known) {
       VocabularyService.shared.unlearn(trans.text, trans.language);
     } else {
-      VocabularyService.shared.learn(result.word, trans.text, config);
+      VocabularyService.shared.learn(_selectedResult.word, trans.text, _activeConfig);
     }
     setState(() {}); // rebuild widget to update list icons
   }
