@@ -2,35 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-class ApiResponse {
-  final List<Entry> results;
-
-  ApiResponse(this.results);
-
-  factory ApiResponse.fromJson(Map<String, dynamic> json) {
-    List<dynamic> jsonResults = json['results'];
-    List<Entry> results = jsonResults.map( (e) => Entry.fromJson(e) ).toList();
-    return ApiResponse(results);
-  }
-}
-
-class Entry {
-  final String id;
-  final String language;
-  final String type;
-  final String word;
-
-  Entry({this.id, this.language, this.type, this.word});
-
-  factory Entry.fromJson(Map<String, dynamic> json) {
-    return Entry(
-      id: json['id'],
-      language: json['lanugage'],
-      type: json['type'],
-      word: json['word']
-    );
-  }
-}
+import 'Model.dart';
 
 class DictionaryService {
 
@@ -39,21 +11,28 @@ class DictionaryService {
 
   DictionaryService(this.from, this.to);
 
-  Future<List<Entry>> getEntries(String word) async {
+  Future<List<SearchResult>> searchHeadwords(String query) async {
 
-    String path = 'entries/$from/$word';
-    ApiResponse res = await _request(path);
+    String path = 'search/$from?q=$query&prefix=true';
+    Map<String,dynamic> json = await _request(path);
+    SearchResponse res = SearchResponse.fromJson(json);
     return res.results;
   }
 
-  Future<List<Entry>> getTranslations(Entry entry) async {
+  Future<List<Translation>> getTranslations(SearchResult result) async {
 
-    String path = 'entries/$from/${entry.id}/translations=$to';
-    ApiResponse res = await _request(path);
-    return res.results; // TODO: parse translations
+    String path = 'entries/$from/${result.id}/translations=$to';
+    Map<String,dynamic> json = await _request(path);
+    TranslationsResponse res = TranslationsResponse.fromJson(json);
+    return res.results
+      .expand( (r) => r.lexicalEntries )
+      .expand( (le) => le.entries )
+      .expand( (e) => e.senses )
+      .expand( (s) => s.translations )
+      .toList();
   }
 
-  Future<ApiResponse> _request(String subpath) async {
+  Future<Map<String,dynamic>> _request(String subpath) async {
 
     String url = 'https://od-api.oxforddictionaries.com:443/api/v1/$subpath';
 
@@ -69,7 +48,6 @@ class DictionaryService {
       throw Exception('Request failed!');
     }
 
-    var jsonDict = json.decode(response.body);
-    return ApiResponse.fromJson(jsonDict);
+    return json.decode(response.body);
   }
 }

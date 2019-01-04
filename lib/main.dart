@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'Model.dart';
 import 'DictionaryService.dart';
 
 void main() => runApp(TranslaterApp());
@@ -8,7 +9,7 @@ void main() => runApp(TranslaterApp());
 class TranslaterApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final titleStyle = TextStyle(fontSize: 21.0); // flutters default sizing is off
+    final titleStyle = TextStyle(fontSize: 21.0);
     return CupertinoApp(
         title: 'Translater',
         home: CupertinoPageScaffold(
@@ -23,10 +24,17 @@ class SearchWidget extends StatefulWidget {
   SearchWidgetState createState() => new SearchWidgetState();
 }
 
+class ListItem {
+  String title;
+  GestureTapCallback onTap;
+
+  ListItem(this.title, this.onTap);
+}
+
 class SearchWidgetState extends State<SearchWidget> {
   DictionaryService _service;
   TextEditingController _textController;
-  List<Entry> _entries = [];
+  List<ListItem> _listItems = [];
   bool _isLoading = false;
 
   @override
@@ -45,10 +53,11 @@ class SearchWidgetState extends State<SearchWidget> {
           child: CupertinoTextField(
               controller: _textController,
               placeholder: 'EN > DE',
+              style: _contentStyle(),
               clearButtonMode: OverlayVisibilityMode.editing,
               autocorrect: false,
               autofocus: true,
-              padding: EdgeInsets.all(5.0),
+              padding: EdgeInsets.all(10.0),
               onSubmitted: _lookup)),
       Divider(height: 1.0),
       content
@@ -56,57 +65,53 @@ class SearchWidgetState extends State<SearchWidget> {
   }
 
   void _lookup(String query) {
-    setState(() {
-      _isLoading = true;
-    });
-
-    _service.getEntries(query).then((entries) {
-      if (entries.length == 1) {
-        _select(entries.first);
-      } else {
-        setState(() {
-          _isLoading = false;
-          _entries = entries;
-        });
-      }
+    setState(() { _isLoading = true; });
+    _service.searchHeadwords(query).then((results) {
+      final items = results.map( (r) => ListItem(r.word, () => _select(r)) ).toList();
+      setState(() {  _isLoading = false; _listItems = items; });
     });
   }
 
-  void _select(Entry entry) {
-    setState(() {
-      _isLoading = true;
-    });
-
-    _service.getTranslations(entry).then((translations) {
-      setState(() {
-        _isLoading = false;
-        _entries = translations;
-      });
+  void _select(SearchResult result) {
+    setState(() { _isLoading = true; });
+    _service.getTranslations(result).then((translations) {
+      final items = translations.map( (t) => ListItem(t.text, null) ).toList();
+      setState(() {  _isLoading = false; _listItems = items; });
     });
   }
 
   Widget _buildList() {
-    if (_entries.isEmpty) {
-      return Placeholder();
+    if (_listItems.isEmpty) {
+      return Container();
     }
 
-    return ListView.separated(
-      padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
-      itemBuilder: (_, int index) => _buildListEntry(index),
-      separatorBuilder: (_, _alreadydefinedwtf) => Divider(height: 1.0),
-      itemCount: _entries.length,
+    return Flexible(child:
+      ListView.separated(
+        itemBuilder: (_, int i) => _buildListItem(i),
+        separatorBuilder: (_, __) => Divider(height: 1.0),
+        itemCount: _listItems.length,
+      )
     );
   }
 
-  Widget _buildListEntry(int index) {
-    Entry entry = _entries[index];
-    return Text(entry.word);
+  Widget _buildListItem(int i) {
+    ListItem item = _listItems[i];
+    return GestureDetector(
+      onTap: item.onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+        child: Text(item.title, style: _contentStyle())
+      )
+    );
   }
 
   Widget _buildLoadingWidget() {
     return Expanded(
-        child: Container(
-            child: Center(child: CupertinoActivityIndicator()),
-            color: Colors.black.withAlpha(100)));
+        child: Center(
+          child: CupertinoActivityIndicator(radius: 20.0)));
+  }
+
+  TextStyle _contentStyle() {
+    return TextStyle(color: Colors.black, fontSize: 18.0, fontWeight: FontWeight.w500);
   }
 }
