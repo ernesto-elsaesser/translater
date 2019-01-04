@@ -2,21 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import 'Model.dart';
-
-class Configuration {
-  String from;
-  String to;
-
-  static Configuration fromDEtoEN = Configuration("de", "en");
-  static Configuration fromENtoDE = Configuration("en", "de");
-
-  Configuration(this.from, this.to);
-}
+import '../model/Configuration.dart';
+import '../model/SearchResponse.dart';
+import '../model/TranslationResponse.dart';
 
 class DictionaryService {
 
-  DictionaryService();
+  // Singleton
+  static final DictionaryService shared = DictionaryService._private();
+  DictionaryService._private();
 
   Future<List<SearchResult>> searchHeadwords(Configuration config, String query) async {
 

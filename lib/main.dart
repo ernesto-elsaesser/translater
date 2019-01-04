@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-import 'SearchWidget.dart';
+import 'widgets/SearchWidget.dart';
 
 void main() => runApp(TranslaterApp());
 

@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 
-import 'Model.dart';
-import 'DictionaryService.dart';
+import '../model/Configuration.dart';
+import '../model/OxfordDictionaryModel.dart';
+import '../services/DictionaryService.dart';
+import '../services/VocabularyService.dart';
 import 'ResultsWidget.dart';
 
 class SearchWidget extends StatefulWidget {
@@ -11,17 +13,16 @@ class SearchWidget extends StatefulWidget {
 
 class SearchWidgetState extends State<SearchWidget> {
 
-  DictionaryService _service = DictionaryService();
   bool _isLoading = false;
   List<ListItem> _listItems = [];
-  Color _bgColor = const Color(0xFFAAAAAA);
+  final Color bgColor = const Color(0xFFBBBBBB);
 
   @override
   Widget build(BuildContext context) {
     return Column(children: <Widget>[
       Container(
           padding: EdgeInsets.all(10.0),
-          color: _bgColor,
+          color: bgColor,
           child: Row(children: <Widget>[
             _buildSearchField(Configuration.fromENtoDE),
             SizedBox(width: 10.0),
@@ -51,20 +52,21 @@ class SearchWidgetState extends State<SearchWidget> {
         child: Center(
           child: CupertinoActivityIndicator(
             radius: 15.0)));
+    } else {
+      return ResultsWidget(_listItems);
     }
-
-    return ResultsWidget(
-      items: _listItems, 
-      tintColor: _bgColor);
   }
 
   void _lookup(Configuration config, String query) {
     setState(() {
       _isLoading = true;
     });
-    _service.searchHeadwords(config, query).then((results) {
+    DictionaryService.shared.searchHeadwords(config, query).then((results) {
       final items = results.map((r) {
-        return ListItem(r.word, () => _select(config, r));
+        return ListItem(
+          title: r.word, 
+          iconBuilder: (_) => Icon(CupertinoIcons.forward, color: bgColor), 
+          onTap: () => _select(config, r));
       }).toList();
       setState(() {
         _isLoading = false;
@@ -77,14 +79,33 @@ class SearchWidgetState extends State<SearchWidget> {
     setState(() {
       _isLoading = true;
     });
-    _service.getTranslations(config, result).then((translations) {
+    DictionaryService.shared.getTranslations(config, result).then((translations) {
       final items = translations.map((t) {
-        return ListItem(t.text, null);
+        return ListItem(
+          title: t.text, 
+          iconBuilder: (_) => _vocabularyIcon(t), 
+          onTap: () => _toggleVocabulary(config, result, t));
       }).toList();
       setState(() {
         _isLoading = false;
         _listItems = items;
       });
     });
+  }
+
+  void _toggleVocabulary(Configuration config, SearchResult result, Translation trans) {
+    bool known = VocabularyService.shared.inVocabulary(trans.text, trans.language);
+    if (known) {
+      VocabularyService.shared.unlearn(trans.text, trans.language);
+    } else {
+      VocabularyService.shared.learn(result.word, trans.text, config);
+    }
+    setState(() {}); // rebuild widget to update list icons
+  }
+
+  Icon _vocabularyIcon(Translation trans) {
+    bool known = VocabularyService.shared.inVocabulary(trans.text, trans.language);
+    IconData data = known ? CupertinoIcons.add_circled_solid : CupertinoIcons.add_circled;
+    return Icon(data, color: bgColor);
   }
 }
