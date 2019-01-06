@@ -47,7 +47,8 @@ class SearchWidgetState extends State<SearchWidget> {
           child: Center(child: CupertinoActivityIndicator(radius: 15.0)));
       sections.add(loadingIndicator);
     } else {
-      sections.add(ResultsWidget(_listItems));
+      final searchResults = Flexible(child: ResultsWidget(_listItems));
+      sections.add(searchResults);
     }
 
     return Column(children: sections);

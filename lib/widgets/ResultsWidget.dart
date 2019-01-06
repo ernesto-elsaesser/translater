@@ -16,16 +16,15 @@ class ResultsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) {
-      return Container();
+      return Center(child: Text("No results."), heightFactor: 3);
     }
 
-    return Flexible(
-        child: ListView.separated(
+    return ListView.separated(
       itemBuilder: (_, int i) => _buildListItem(i, context),
       separatorBuilder: (_, __) =>
           Container(height: 1.0, color: CupertinoColors.lightBackgroundGray),
       itemCount: items.length,
-    ));
+    );
   }
 
   Widget _buildListItem(int i, BuildContext context) {

@@ -58,7 +58,7 @@ class VocabularyService with WidgetsBindingObserver {
     try {
       final file = await _vocabularyFile();
       final json = await file.readAsString();
-      final data = jsonDecode(json);
+      List<dynamic> data = jsonDecode(json);
       _relations = data.map((list) => WordRelation.fromJson(list)).toList();
       _updateKnownWords();
       print("Loaded vocabulary from disk (${_relations.length} entries).");
