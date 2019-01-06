@@ -68,6 +68,10 @@ class SearchWidgetState extends State<SearchWidget> {
   }
 
   void _lookup(Configuration config, String query) {
+    if (query.isEmpty) {
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _activeConfig = config;

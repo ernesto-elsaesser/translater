@@ -16,7 +16,7 @@ class ResultsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) {
-      return Center(child: Text("No results."), heightFactor: 3);
+      return Center(child: Text("No results."), heightFactor: 2);
     }
 
     return ListView.separated(
@@ -29,7 +29,7 @@ class ResultsWidget extends StatelessWidget {
 
   Widget _buildListItem(int i, BuildContext context) {
     final item = items[i];
-    final itemStyle = TextStyle(fontSize: 18.0, fontWeight: FontWeight.w500);
+    final itemStyle = TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500);
     final icon = item.iconBuilder(context);
     return GestureDetector(
         onTap: item.onTap,
