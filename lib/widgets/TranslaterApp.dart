@@ -27,7 +27,7 @@ class TranslaterAppState extends State<TranslaterApp> {
     _tabs = [
       Tab('Translate', CupertinoIcons.search, (_) => SearchWidget()),
       Tab('Vocabulary', CupertinoIcons.book, (_) => VocabularyWidget()),
-      Tab('Metrics', CupertinoIcons.eye, (_) => Container())
+      Tab('Metrics', CupertinoIcons.gear, (_) => Container())
     ];
     super.initState();
     VocabularyService.instance.init();
