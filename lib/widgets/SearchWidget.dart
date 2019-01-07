@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 
 import '../services/DictionaryService.dart';
 import 'WordsWidget.dart';
+import 'SelectionHeader.dart';
+import 'SplitBox.dart';
 
 class SearchWidget extends StatefulWidget {
   @override
@@ -11,30 +13,24 @@ class SearchWidget extends StatefulWidget {
 class SearchWidgetState extends State<SearchWidget> {
   
   bool _isLoading = false;
-  List<WordItem> _wordItems = [];
-  SearchResult _selectedResult;
   Configuration _activeConfig;
+  List<WordItem> _searchResults;
+  Word _selectedWord;
+  List<WordItem> _translationResults;
 
   @override
   Widget build(BuildContext context) {
-    final searchBar = Container(
-        padding: EdgeInsets.all(10.0),
-        color: CupertinoColors.lightBackgroundGray,
-        child: Row(children: <Widget>[
-          _buildSearchField(Configuration.englishToGerman),
-          SizedBox(width: 10.0),
-          _buildSearchField(Configuration.germanToEnglish)
-        ]));
+    final searchBar = SplitBox(
+      _buildSearchField(Configuration.englishToGerman),
+      _buildSearchField(Configuration.germanToEnglish)
+    );
 
     List<Widget> sections = [searchBar];
 
-    if (_selectedResult != null) {
-      final selectionText = "$_activeConfig: ${_selectedResult.word}";
-      final selectionBar = Container(
-          color: Color(0xFFBBBBDD),
-          padding: EdgeInsets.all(10.0),
-          child: Center(child: Text(selectionText)));
-      sections.add(selectionBar);
+    if (_selectedWord != null) {
+      final selectionHeader = SelectionHeader(_selectedWord,
+        onDismiss: _unselect);
+      sections.add(selectionHeader);
     }
 
     if (_isLoading) {
@@ -42,17 +38,19 @@ class SearchWidgetState extends State<SearchWidget> {
           child: Center(child: CupertinoActivityIndicator(radius: 15.0)));
       sections.add(loadingIndicator);
     } else {
-      final searchResults = Flexible(
-        child: WordsWidget(_wordItems, emptyText: "No results.",));
-      sections.add(searchResults);
+      final items = _translationResults ?? _searchResults;
+      if (items != null) {
+        final searchResults = Flexible(
+          child: WordsWidget(items, emptyText: "No results.",));
+        sections.add(searchResults);
+      }
     }
 
     return Column(children: sections);
   }
 
   Widget _buildSearchField(Configuration config) {
-    return Expanded(
-        child: Container(
+    return Container(
             color: CupertinoColors.white,
             child: CupertinoTextField(
                 placeholder: config.toString(),
@@ -60,7 +58,7 @@ class SearchWidgetState extends State<SearchWidget> {
                 clearButtonMode: OverlayVisibilityMode.editing,
                 autocorrect: false,
                 padding: EdgeInsets.all(10.0),
-                onSubmitted: (q) => _lookup(config, q))));
+                onSubmitted: (q) => _lookup(config, q)));
   }
 
   void _lookup(Configuration config, String query) async {
@@ -69,36 +67,43 @@ class SearchWidgetState extends State<SearchWidget> {
     }
     setState(() {
       _isLoading = true;
-      _activeConfig = config;
-      _selectedResult = null;
     });
     final results = await DictionaryService.instance.searchHeadwords(config, query);
     final items = results.map((r) {
-      final word = Word(r.word, _activeConfig.from);
-      return WordsWidget.translatableItem(word, () => _select(r));
+      final word = Word(r.word, config.from);
+      return WordsWidget.translatableItem(word, _select);
     }).toList();
     setState(() {
       _isLoading = false;
-      _wordItems = items;
+      _activeConfig = config;
+      _searchResults = items;
+      _selectedWord = null;
+      _translationResults = null;
     });
   }
 
-  void _select(SearchResult result) async {
+  void _select(Word word) async {
     setState(() {
       _isLoading = true;
-      _selectedResult = result;
     });
-    final word = Word(result.word, _activeConfig.from);
-    final translations = await DictionaryService.instance.getTranslations(_activeConfig, result);
+    final translations = await DictionaryService.instance.getTranslations(_activeConfig, word.text);
     final items = translations.map((t) {
       final translation = Word(t.text, _activeConfig.to);
       return WordsWidget.translatedItem(word, translation, _rebuild);
     }).toList();
     setState(() {
       _isLoading = false;
-      _wordItems = items;
+      _selectedWord = word;
+      _translationResults = items;
     });
   }
 
-  void _rebuild() => setState(() {});
+  void _unselect() {
+    setState(() {
+      _selectedWord = null;
+      _translationResults = null;
+    });
+  }
+
+  void _rebuild(Word word) => setState(() {});
 }

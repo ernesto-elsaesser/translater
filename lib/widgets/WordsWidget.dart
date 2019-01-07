@@ -2,10 +2,12 @@ import 'package:flutter/cupertino.dart';
 
 import '../services/VocabularyService.dart';
 
+typedef WordTapCallback = void Function(Word);
+
 class WordItem {
   Word word;
   WidgetBuilder iconBuilder;
-  GestureTapCallback onTap;
+  WordTapCallback onTap;
 
   WordItem({this.word, this.iconBuilder, this.onTap});
 }
@@ -36,7 +38,7 @@ class WordsWidget extends StatelessWidget {
     final icon = item.iconBuilder(context);
     return GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: item.onTap,
+        onTap: () => item.onTap(item.word),
         child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
             child: Row(children: [
@@ -45,27 +47,27 @@ class WordsWidget extends StatelessWidget {
             ])));
   }
 
-  static WordItem translatableItem(Word word, GestureTapCallback onTap) {
+  static WordItem translatableItem(Word word, WordTapCallback onTap) {
     return WordItem(
         word: word,
         iconBuilder: (_) => Icon(CupertinoIcons.forward, color: CupertinoColors.lightBackgroundGray),
         onTap: onTap);
   }
 
-  static WordItem translatedItem(Word word, Word translation, VoidCallback onChange) {
+  static WordItem translatedItem(Word word, Word translation, WordTapCallback onChange) {
     final vocabulary = VocabularyService.instance;
     final knownIcon = Icon(CupertinoIcons.minus_circled, color: CupertinoColors.destructiveRed);
     final unknownIcon = Icon(CupertinoIcons.add_circled, color: CupertinoColors.activeGreen);
 
     WidgetBuilder iconBuilder = (_) => vocabulary.contains(translation) ? knownIcon : unknownIcon;
 
-    GestureTapCallback onTap = () {
+    WordTapCallback onTap = (_) {
       if (vocabulary.contains(word)) {
         vocabulary.unlearn(word, translation);
       } else {
         vocabulary.learn(word, translation);
       }
-      onChange();
+      onChange(word);
     };
     
     return WordItem(word: translation, iconBuilder: iconBuilder, onTap: onTap);

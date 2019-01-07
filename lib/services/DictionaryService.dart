@@ -22,9 +22,9 @@ class DictionaryService {
   }
 
   Future<List<Translation>> getTranslations(
-      Configuration config, SearchResult result) async {
+      Configuration config, String headword) async {
     final path =
-        'entries/${config.from}/${result.id}/translations=${config.to}';
+        'entries/${config.from}/$headword/translations=${config.to}';
     final json = await _request(path);
     final res = TranslationsResponse.fromJson(json);
     return res.results
