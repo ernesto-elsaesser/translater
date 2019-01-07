@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import '../model/Configuration.dart';
-import '../model/SearchResponse.dart';
-import '../model/TranslationResponse.dart';
+import '../model/OxfordDictionaryModel.dart';
+export '../model/OxfordDictionaryModel.dart';
+import '../model/VocabularyModel.dart';
+export '../model/VocabularyModel.dart';
 
 class DictionaryService {
   // Singleton

@@ -1,10 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
-import '../model/Configuration.dart';
-import '../model/OxfordDictionaryModel.dart';
 import '../services/DictionaryService.dart';
-import '../services/VocabularyService.dart';
-import 'ResultsWidget.dart';
+import 'WordsWidget.dart';
 
 class SearchWidget extends StatefulWidget {
   @override
@@ -14,21 +11,19 @@ class SearchWidget extends StatefulWidget {
 class SearchWidgetState extends State<SearchWidget> {
   
   bool _isLoading = false;
-  List<ListItem> _listItems = [];
+  List<WordItem> _wordItems = [];
   SearchResult _selectedResult;
   Configuration _activeConfig;
-
-  final Color bgColor = const Color(0xFFBBBBBB);
 
   @override
   Widget build(BuildContext context) {
     final searchBar = Container(
         padding: EdgeInsets.all(10.0),
-        color: bgColor,
+        color: CupertinoColors.lightBackgroundGray,
         child: Row(children: <Widget>[
-          _buildSearchField(Configuration.fromENtoDE),
+          _buildSearchField(Configuration.englishToGerman),
           SizedBox(width: 10.0),
-          _buildSearchField(Configuration.fromDEtoEN)
+          _buildSearchField(Configuration.germanToEnglish)
         ]));
 
     List<Widget> sections = [searchBar];
@@ -47,7 +42,8 @@ class SearchWidgetState extends State<SearchWidget> {
           child: Center(child: CupertinoActivityIndicator(radius: 15.0)));
       sections.add(loadingIndicator);
     } else {
-      final searchResults = Flexible(child: ResultsWidget(_listItems));
+      final searchResults = Flexible(
+        child: WordsWidget(_wordItems, emptyText: "No results.",));
       sections.add(searchResults);
     }
 
@@ -67,67 +63,42 @@ class SearchWidgetState extends State<SearchWidget> {
                 onSubmitted: (q) => _lookup(config, q))));
   }
 
-  void _lookup(Configuration config, String query) {
+  void _lookup(Configuration config, String query) async {
     if (query.isEmpty) {
       return;
     }
-
     setState(() {
       _isLoading = true;
       _activeConfig = config;
       _selectedResult = null;
     });
-    DictionaryService.instance.searchHeadwords(config, query).then((results) {
-      final items = results.map((r) {
-        return ListItem(
-            title: r.word,
-            iconBuilder: (_) => Icon(CupertinoIcons.forward, color: bgColor),
-            onTap: () => _select(r));
-      }).toList();
-      setState(() {
-        _isLoading = false;
-        _listItems = items;
-      });
+    final results = await DictionaryService.instance.searchHeadwords(config, query);
+    final items = results.map((r) {
+      final word = Word(r.word, _activeConfig.from);
+      return WordsWidget.translatableItem(word, () => _select(r));
+    }).toList();
+    setState(() {
+      _isLoading = false;
+      _wordItems = items;
     });
   }
 
-  void _select(SearchResult result) {
+  void _select(SearchResult result) async {
     setState(() {
       _isLoading = true;
       _selectedResult = result;
     });
-    DictionaryService.instance
-        .getTranslations(_activeConfig, result)
-        .then((translations) {
-      final items = translations.map((t) {
-        return ListItem(
-            title: t.text,
-            iconBuilder: (_) => _vocabularyIcon(t),
-            onTap: () => _toggleVocabulary(t));
-      }).toList();
-      setState(() {
-        _isLoading = false;
-        _listItems = items;
-      });
+    final word = Word(result.word, _activeConfig.from);
+    final translations = await DictionaryService.instance.getTranslations(_activeConfig, result);
+    final items = translations.map((t) {
+      final translation = Word(t.text, _activeConfig.to);
+      return WordsWidget.translatedItem(word, translation, _rebuild);
+    }).toList();
+    setState(() {
+      _isLoading = false;
+      _wordItems = items;
     });
   }
 
-  void _toggleVocabulary(Translation trans) {
-    final vocabulary = VocabularyService.instance;
-    final known = vocabulary.contains(trans.text, trans.language);
-    if (known) {
-      vocabulary.unlearn(trans.text, trans.language);
-    } else {
-      vocabulary.learn(_selectedResult.word, trans.text, _activeConfig);
-    }
-    setState(() {}); // rebuild widget to update list icons
-  }
-
-  Icon _vocabularyIcon(Translation trans) {
-    final known =
-        VocabularyService.instance.contains(trans.text, trans.language);
-    final data =
-        known ? CupertinoIcons.add_circled_solid : CupertinoIcons.add_circled;
-    return Icon(data, color: bgColor);
-  }
+  void _rebuild() => setState(() {});
 }

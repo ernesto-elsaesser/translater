@@ -5,35 +5,16 @@ import 'dart:io';
 import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../model/Configuration.dart';
-
-class WordRelation {
-  String word1;
-  String language1;
-  String word2;
-  String language2;
-
-  WordRelation({this.word1, this.language1, this.word2, this.language2});
-
-  WordRelation.fromJson(List<dynamic> json)
-      : word1 = json[0],
-        language1 = json[1],
-        word2 = json[2],
-        language2 = json[3];
-
-  List<String> toJson() => [word1, language1, word2, language2];
-}
+import '../model/VocabularyModel.dart';
+export '../model/VocabularyModel.dart';
 
 class VocabularyService with WidgetsBindingObserver {
   // Singleton
   static final VocabularyService instance = VocabularyService._private();
   VocabularyService._private();
 
-  List<WordRelation> _relations = [];
-
-  // _knownWords serves as an index for _relations to simplify lookups
-  // structure: [word -> [language -> relation]]
-  Map<String, Map<String, WordRelation>> _knownWords = {};
+  Set<WordRelation> _relations = Set();
+  Map<Language, Map<String, List<Word>>> _lookupIndex = {};
 
   void init() {
     WidgetsBinding.instance.addObserver(this);
@@ -59,8 +40,8 @@ class VocabularyService with WidgetsBindingObserver {
       final file = await _vocabularyFile();
       final json = await file.readAsString();
       List<dynamic> data = jsonDecode(json);
-      _relations = data.map((list) => WordRelation.fromJson(list)).toList();
-      _updateKnownWords();
+      _relations = data.map((list) => WordRelation.fromJson(list)).toSet();
+      _rebuildIndex();
       print("Loaded vocabulary from disk (${_relations.length} entries).");
     } catch (e) {
       print("Loading vocabulary from disk failed: $e");
@@ -72,52 +53,55 @@ class VocabularyService with WidgetsBindingObserver {
     return File('${directory.path}/vocabulary.txt');
   }
 
-  void learn(String wordFrom, String wordTo, Configuration config) {
-    final relation = WordRelation(
-        word1: wordFrom.toLowerCase(),
-        language1: config.from,
-        word2: wordTo.toLowerCase(),
-        language2: config.to);
+  void learn(Word word, Word translation) {
+    final relation = WordRelation(word, translation);
     _relations.add(relation);
-    _updateKnownWords();
+    _rebuildIndex();
   }
 
-  void unlearn(String word, String language) {
-    final entries = _knownWords[word.toLowerCase()];
-    if (entries == null) {
-      return;
-    }
-    final relation = entries[language];
-    if (relation == null) {
-      return;
-    }
+  void unlearn(Word word, Word translation) {
+    final relation = WordRelation(word, translation);
     _relations.remove(relation);
-    _updateKnownWords();
+    _rebuildIndex();
   }
 
-  bool contains(String word, String language) {
-    final entries = _knownWords[word.toLowerCase()];
-    if (entries == null) {
+  bool contains(Word word) {
+    final strings = _lookupIndex[word.language];
+    if (strings == null) {
       return false;
     }
-    return entries[language] != null;
+    return strings.containsKey(word.text);
   }
 
-  void _updateKnownWords() {
-    _knownWords = {};
+  List<Word> learnedWords(Language language) {
+    final strings = _lookupIndex[language];
+    if (strings == null) {
+      return [];
+    }
+    return strings.keys.map( (s) => Word(s,language) ).toList();
+  }
+
+  List<Word> translationsFor(Word word) {
+    final strings = _lookupIndex[word.language];
+    if (strings == null) {
+      return [];
+    }
+    return strings[word.text] ?? [];
+  }
+
+  void _rebuildIndex() {
+    _lookupIndex = {};
     for (final relation in _relations) {
-      _addToKnownWords(relation.word1, relation.language1, relation);
-      _addToKnownWords(relation.word2, relation.language2, relation);
+      _addToIndex(relation.word1, relation.word2);
+      _addToIndex(relation.word2, relation.word1);
     }
   }
 
-  void _addToKnownWords(String word, String language, WordRelation relation) {
-    var entries = _knownWords[word];
-    if (entries == null) {
-      _knownWords[word] = {language: relation};
-    } else {
-      entries[language] = relation;
-      _knownWords[word] = entries;
-    }
+  void _addToIndex(Word word, Word translation) {
+    var strings = _lookupIndex[word.language] ?? {};
+    var translations = strings[word.text] ?? [];
+    translations.add(translation);
+    strings[word.text] = translations;
+    _lookupIndex[word.language] = strings;
   }
 }
