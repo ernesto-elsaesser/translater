@@ -30,7 +30,7 @@ class VocabularyService with WidgetsBindingObserver {
 
   void _writeToDisk() async {
     final file = await _vocabularyFile();
-    final json = jsonEncode(_relations);
+    final json = jsonEncode(_relations.toList());
     file.writeAsString(json);
     print("Saved vocabulary on disk (${_relations.length} entries).");
   }

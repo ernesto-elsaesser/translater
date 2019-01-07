@@ -31,7 +31,7 @@ class SearchWidgetState extends State<SearchWidget> {
     if (_selectedResult != null) {
       final selectionText = "$_activeConfig: ${_selectedResult.word}";
       final selectionBar = Container(
-          color: Color(0xFFEEEEEE),
+          color: Color(0xFFBBBBDD),
           padding: EdgeInsets.all(10.0),
           child: Center(child: Text(selectionText)));
       sections.add(selectionBar);
