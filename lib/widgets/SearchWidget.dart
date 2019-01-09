@@ -67,6 +67,8 @@ class SearchWidgetState extends State<SearchWidget> {
     }
     setState(() {
       _isLoading = true;
+      _selectedWord = null;
+      _translationResults = null;
     });
     final results = await DictionaryService.instance.searchHeadwords(config, query);
     final items = results.map((r) {
@@ -77,8 +79,6 @@ class SearchWidgetState extends State<SearchWidget> {
       _isLoading = false;
       _activeConfig = config;
       _searchResults = items;
-      _selectedWord = null;
-      _translationResults = null;
     });
   }
 
