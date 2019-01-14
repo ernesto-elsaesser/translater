@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 import '../services/DictionaryService.dart';
+import '../services/VocabularyService.dart';
 import 'WordsWidget.dart';
 import 'SelectionHeader.dart';
 import 'SplitBox.dart';
@@ -13,10 +14,8 @@ class SearchWidget extends StatefulWidget {
 class SearchWidgetState extends State<SearchWidget> {
   
   bool _isLoading = false;
-  Configuration _activeConfig;
-  List<WordItem> _searchResults;
-  Word _selectedWord;
-  List<WordItem> _translationResults;
+  Word _query;
+  List<AddableItem> _translations;
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +26,9 @@ class SearchWidgetState extends State<SearchWidget> {
 
     List<Widget> sections = [searchBar];
 
-    if (_selectedWord != null) {
-      final selectionHeader = SelectionHeader(_selectedWord,
-        onDismiss: _unselect);
+    if (_query != null) {
+      final selectionHeader = SelectionHeader(_query,
+        onDismiss: _clear);
       sections.add(selectionHeader);
     }
 
@@ -37,13 +36,10 @@ class SearchWidgetState extends State<SearchWidget> {
       final loadingIndicator = Expanded(
           child: Center(child: CupertinoActivityIndicator(radius: 15.0)));
       sections.add(loadingIndicator);
-    } else {
-      final items = _translationResults ?? _searchResults;
-      if (items != null) {
-        final searchResults = Flexible(
-          child: WordsWidget(items, emptyText: "No results.",));
-        sections.add(searchResults);
-      }
+    } else if (_translations != null) {
+      final searchResults = Flexible(
+        child: WordsWidget(_translations, emptyText: "No results.",));
+      sections.add(searchResults);
     }
 
     return Column(children: sections);
@@ -67,43 +63,48 @@ class SearchWidgetState extends State<SearchWidget> {
     }
     setState(() {
       _isLoading = true;
-      _selectedWord = null;
-      _translationResults = null;
     });
-    final results = await DictionaryService.instance.searchHeadwords(config, query);
-    final items = results.map((r) {
-      final word = Word(r.word, config.from);
-      return WordsWidget.translatableItem(word, _select);
-    }).toList();
-    setState(() {
-      _isLoading = false;
-      _activeConfig = config;
-      _searchResults = items;
-    });
+    final word = Word(query, config.from);
+    final results = await DictionaryService.instance.getTranslations(config, query);
+    if (results == null) {
+      setState(() {
+        _isLoading = false;
+        _query = null;
+        _translations = [];
+      });
+    } else {
+      final translations = results.map((t) {
+        final translation = Word(t.text, config.to);
+        return _makeItem(word, translation);
+      }).toList();
+      setState(() {
+        _isLoading = false;
+        _query = word;
+        _translations = translations;
+      });
+    }
   }
 
-  void _select(Word word) async {
+  void _clear() {
     setState(() {
-      _isLoading = true;
-    });
-    final translations = await DictionaryService.instance.getTranslations(_activeConfig, word.text);
-    final items = translations.map((t) {
-      final translation = Word(t.text, _activeConfig.to);
-      return WordsWidget.translatedItem(word, translation, _rebuild);
-    }).toList();
-    setState(() {
-      _isLoading = false;
-      _selectedWord = word;
-      _translationResults = items;
-    });
+        _query = null;
+        _translations = null;
+      });
   }
 
-  void _unselect() {
-    setState(() {
-      _selectedWord = null;
-      _translationResults = null;
-    });
+  AddableItem _makeItem(Word word, Word translation) {
+    final vocabulary = VocabularyService.instance;
+    VoidCallback onTap = () {
+      if (vocabulary.contains(word)) {
+        vocabulary.unlearn(word, translation);
+      } else {
+        vocabulary.learn(word, translation);
+      }
+      setState(() {});
+    };
+    return AddableItem(
+      text: translation.text, 
+      isAdded: () => vocabulary.contains(translation),
+      onTap: onTap);
   }
-
-  void _rebuild(Word word) => setState(() {});
 }

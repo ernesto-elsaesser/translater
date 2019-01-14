@@ -12,20 +12,14 @@ class DictionaryService {
   static final DictionaryService instance = DictionaryService._private();
   DictionaryService._private();
 
-  Future<List<SearchResult>> searchHeadwords(
-      Configuration config, String query) async {
-    final path =
-        'search/${config.from}/translations=${config.to}?q=$query&prefix=true';
-    final json = await _request(path);
-    final res = SearchResponse.fromJson(json);
-    return res.results;
-  }
-
   Future<List<Translation>> getTranslations(
       Configuration config, String headword) async {
     final path =
         'entries/${config.from}/$headword/translations=${config.to}';
     final json = await _request(path);
+    if (json == null) {
+      return null;
+    }
     final res = TranslationsResponse.fromJson(json);
     return res.results
         .expand((r) => r.lexicalEntries)
@@ -44,7 +38,7 @@ class DictionaryService {
     };
     final response = await http.get(url, headers: headers);
     if (response.statusCode != 200) {
-      throw Exception('API request failed!');
+      return null;
     }
     return json.decode(response.body);
   }

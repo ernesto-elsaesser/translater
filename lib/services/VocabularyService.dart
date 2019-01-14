@@ -73,20 +73,8 @@ class VocabularyService with WidgetsBindingObserver {
     return strings.containsKey(word.text);
   }
 
-  List<Word> learnedWords(Language language) {
-    final strings = _lookupIndex[language];
-    if (strings == null) {
-      return [];
-    }
-    return strings.keys.map( (s) => Word(s,language) ).toList();
-  }
-
-  List<Word> translationsFor(Word word) {
-    final strings = _lookupIndex[word.language];
-    if (strings == null) {
-      return [];
-    }
-    return strings[word.text] ?? [];
+  Map<String, List<Word>> learnedWords(Language language) {
+    return _lookupIndex[language];
   }
 
   void _rebuildIndex() {

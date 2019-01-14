@@ -1,21 +1,22 @@
 import 'package:flutter/cupertino.dart';
 
-import '../services/VocabularyService.dart';
+typedef BoolCallback = bool Function();
 
-typedef WordTapCallback = void Function(Word);
+class AddableItem {
+  String text;
+  BoolCallback isAdded;
+  VoidCallback onTap;
 
-class WordItem {
-  Word word;
-  WidgetBuilder iconBuilder;
-  WordTapCallback onTap;
-
-  WordItem({this.word, this.iconBuilder, this.onTap});
+  AddableItem({this.text, this.isAdded, this.onTap});
 }
 
 class WordsWidget extends StatelessWidget {
   const WordsWidget(this.items, {Key key, this.emptyText = ""}) : super(key: key);
 
-  final List<WordItem> items;
+  static final plusIcon = Icon(CupertinoIcons.add_circled, color: CupertinoColors.activeGreen);
+  static final minusIcon = Icon(CupertinoIcons.minus_circled, color: CupertinoColors.destructiveRed);
+
+  final List<AddableItem> items;
   final String emptyText;
 
   @override
@@ -35,41 +36,15 @@ class WordsWidget extends StatelessWidget {
   Widget _buildListItem(int i, BuildContext context) {
     final item = items[i];
     final itemStyle = TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500);
-    final icon = item.iconBuilder(context);
+    final icon = item.isAdded() ? minusIcon : plusIcon;
     return GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => item.onTap(item.word),
+        onTap: item.onTap,
         child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
             child: Row(children: [
-              Expanded(child: Text(item.word.text, style: itemStyle)),
-              icon
-            ])));
-  }
-
-  static WordItem translatableItem(Word word, WordTapCallback onTap) {
-    return WordItem(
-        word: word,
-        iconBuilder: (_) => Icon(CupertinoIcons.forward, color: CupertinoColors.lightBackgroundGray),
-        onTap: onTap);
-  }
-
-  static WordItem translatedItem(Word word, Word translation, WordTapCallback onChange) {
-    final vocabulary = VocabularyService.instance;
-    final knownIcon = Icon(CupertinoIcons.minus_circled, color: CupertinoColors.destructiveRed);
-    final unknownIcon = Icon(CupertinoIcons.add_circled, color: CupertinoColors.activeGreen);
-
-    WidgetBuilder iconBuilder = (_) => vocabulary.contains(translation) ? knownIcon : unknownIcon;
-
-    WordTapCallback onTap = (_) {
-      if (vocabulary.contains(word)) {
-        vocabulary.unlearn(word, translation);
-      } else {
-        vocabulary.learn(word, translation);
-      }
-      onChange(word);
-    };
-    
-    return WordItem(word: translation, iconBuilder: iconBuilder, onTap: onTap);
+                Expanded(child: Text(item.text, style: itemStyle)),
+                icon
+              ])));
   }
 }

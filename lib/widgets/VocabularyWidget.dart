@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 
 import '../services/VocabularyService.dart';
 import 'WordsWidget.dart';
-import 'SelectionHeader.dart';
 import 'SplitBox.dart';
 
 class VocabularyWidget extends StatefulWidget {
@@ -13,7 +12,6 @@ class VocabularyWidget extends StatefulWidget {
 class VocabularyWidgetState extends State<VocabularyWidget> {
 
   Language _selectedLanguage = Language.english;
-  Word _selectedWord;
 
   @override
   Widget build(BuildContext context) {
@@ -22,30 +20,33 @@ class VocabularyWidgetState extends State<VocabularyWidget> {
       _buildLangaugeButton(Language.english),
       _buildLangaugeButton(Language.german)
     );
-
     List<Widget> sections = [languageSwitcher];
 
-    if (_selectedWord != null) {
-      final selectionHeader = SelectionHeader(_selectedWord,
-        onDismiss: _unselect);
-      sections.add(selectionHeader);
-    }
     final wordList = Flexible(child: _buildWordList());
     sections.add(wordList);
+
     return Column(children: sections);
   }
 
   WordsWidget _buildWordList() {
     final vocabulary = VocabularyService.instance;
-    Iterable<WordItem> items;
-    if (_selectedWord != null) {
-      final translations = vocabulary.translationsFor(_selectedWord);
-      items = translations.map((t) => WordsWidget.translatedItem(_selectedWord, t, _update));
-    } else {
-      final learnedWords = vocabulary.learnedWords(_selectedLanguage);
-      items = learnedWords.map((w) => WordsWidget.translatableItem(w, _select));
-    }
-    return WordsWidget(items.toList(), emptyText: "No entries.");
+    final learnedWords = vocabulary.learnedWords(_selectedLanguage);
+    final items = learnedWords.entries.expand( (e) {
+      final word = Word(e.key, _selectedLanguage);
+      return e.value.map( (t) => _makeItem(word, t) );
+    }).toList();
+    return WordsWidget(items, emptyText: "No entries.");
+  }
+
+  AddableItem _makeItem(Word word, Word translation) {
+    VoidCallback onTap = () {
+      VocabularyService.instance.unlearn(word, translation);
+      setState(() {});
+    };
+    return AddableItem(
+      text: "${word.text} - ${translation.text}", 
+      isAdded: () => true, 
+      onTap: onTap);
   }
 
   CupertinoButton _buildLangaugeButton(Language language) {
@@ -62,28 +63,5 @@ class VocabularyWidgetState extends State<VocabularyWidget> {
     setState(() {
       _selectedLanguage = language;
     });
-  }
-
-  void _select(Word word) {
-    setState(() {
-      _selectedWord = word;
-    });
-  }
-
-  void _unselect() {
-    setState(() {
-      _selectedWord = null;
-    });
-  }
-
-  void _update(Word word) {
-    final translations = VocabularyService.instance.translationsFor(_selectedWord);
-    if (translations.isEmpty) {
-      setState(() {
-        _selectedWord = null;
-      });
-    } else {
-      setState(() {});
-    }
   }
 }
