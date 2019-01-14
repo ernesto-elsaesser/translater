@@ -14,7 +14,7 @@ class VocabularyService with WidgetsBindingObserver {
   VocabularyService._private();
 
   Set<WordRelation> _relations = Set();
-  Map<Language, Map<String, List<Word>>> _lookupIndex = {};
+  Map<Language, Map<String, TranslatedWord>> _lookupIndex = {};
 
   void init() {
     WidgetsBinding.instance.addObserver(this);
@@ -73,8 +73,12 @@ class VocabularyService with WidgetsBindingObserver {
     return strings.containsKey(word.text);
   }
 
-  Map<String, List<Word>> learnedWords(Language language) {
-    return _lookupIndex[language];
+  List<TranslatedWord> knownTranslations(Language language) {
+    final strings = _lookupIndex[language];
+    if (strings == null) {
+      return [];
+    }
+    return strings.values.toList();
   }
 
   void _rebuildIndex() {
@@ -87,9 +91,13 @@ class VocabularyService with WidgetsBindingObserver {
 
   void _addToIndex(Word word, Word translation) {
     var strings = _lookupIndex[word.language] ?? {};
-    var translations = strings[word.text] ?? [];
-    translations.add(translation);
-    strings[word.text] = translations;
+    var translatedWord = strings[word.text];
+    if (translatedWord == null) {
+      translatedWord = TranslatedWord(word, [translation]);
+    } else {
+      translatedWord.translations.add(translation);
+    }
+    strings[word.text] = translatedWord;
     _lookupIndex[word.language] = strings;
   }
 }

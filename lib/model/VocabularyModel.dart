@@ -24,14 +24,53 @@ class Configuration {
   }
 }
 
+enum WordCategory { noun, verb, adjective, other }
+
+class WordCategories {
+
+  static WordCategory fromName(String categoryName) {
+    switch (categoryName) {
+      case "Noun":
+        return WordCategory.noun;
+      case "Verb":
+        return WordCategory.verb;
+      case "Adjective":
+        return WordCategory.adjective;
+      default:
+        return WordCategory.other;
+    }
+  }
+
+  static String name(WordCategory category) {
+    switch (category) {
+      case WordCategory.noun:
+        return "Noun";
+      case WordCategory.verb:
+        return "Verb";
+      case WordCategory.adjective:
+        return "Adjective";
+      case WordCategory.other:
+        return "Other";
+    }
+  }
+}
+
 class Word {
   String text;
   Language language;
+  WordCategory category;
 
-  Word(this.text, this.language);
+  Word(this.text, this.language, this.category);
 
   int get hashCode => text.hashCode ^ language.hashCode;
   bool operator ==(o) => o is Word && o.text == text && o.language == language;
+}
+
+class TranslatedWord {
+  Word word;
+  List<Word> translations;
+
+  TranslatedWord(this.word, this.translations);
 }
 
 class WordRelation {
@@ -41,11 +80,14 @@ class WordRelation {
 
   bool relates(Word word) => word == word1 || word == word2;
 
-  WordRelation.fromJson(List<dynamic> json)
-      : word1 = Word(json[0], Language.fromCode(json[1])),
-        word2 = Word(json[2], Language.fromCode(json[3]));
+  WordRelation.fromJson(List<dynamic> json) {
+    int catIndex = json[4];
+    WordCategory  category = WordCategory.values[catIndex];
+    word1 = Word(json[0], Language.fromCode(json[1]), category);
+    word2 = Word(json[2], Language.fromCode(json[3]), category);
+  }
 
-  List<String> toJson() => [word1.text, word1.language.code, word2.text, word2.language.code];
+  List<dynamic> toJson() => [word1.text, word1.language.code, word2.text, word2.language.code, word1.category.index];
 
   int get hashCode => word1.hashCode ^ word2.hashCode;
   bool operator ==(o) => o is WordRelation && 

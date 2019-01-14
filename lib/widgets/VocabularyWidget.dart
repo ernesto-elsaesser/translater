@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 import '../services/VocabularyService.dart';
-import 'WordsWidget.dart';
+import 'WordList.dart';
 import 'SplitBox.dart';
 
 class VocabularyWidget extends StatefulWidget {
@@ -28,14 +28,13 @@ class VocabularyWidgetState extends State<VocabularyWidget> {
     return Column(children: sections);
   }
 
-  WordsWidget _buildWordList() {
+  WordList _buildWordList() {
     final vocabulary = VocabularyService.instance;
-    final learnedWords = vocabulary.learnedWords(_selectedLanguage);
-    final items = learnedWords.entries.expand( (e) {
-      final word = Word(e.key, _selectedLanguage);
-      return e.value.map( (t) => _makeItem(word, t) );
+    final translatedWords = vocabulary.knownTranslations(_selectedLanguage);
+    final items = translatedWords.expand( (tw) {
+      return tw.translations.map( (t) => _makeItem(tw.word, t) );
     }).toList();
-    return WordsWidget(items, emptyText: "No entries.");
+    return WordList(items, emptyText: "No entries.");
   }
 
   AddableItem _makeItem(Word word, Word translation) {

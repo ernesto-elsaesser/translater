@@ -2,8 +2,7 @@ import 'package:flutter/cupertino.dart';
 
 import '../services/DictionaryService.dart';
 import '../services/VocabularyService.dart';
-import 'WordsWidget.dart';
-import 'SelectionHeader.dart';
+import 'WordList.dart';
 import 'SplitBox.dart';
 
 class SearchWidget extends StatefulWidget {
@@ -14,8 +13,7 @@ class SearchWidget extends StatefulWidget {
 class SearchWidgetState extends State<SearchWidget> {
   
   bool _isLoading = false;
-  Word _query;
-  List<AddableItem> _translations;
+  List<TranslatedWord> _results;
 
   @override
   Widget build(BuildContext context) {
@@ -26,19 +24,12 @@ class SearchWidgetState extends State<SearchWidget> {
 
     List<Widget> sections = [searchBar];
 
-    if (_query != null) {
-      final selectionHeader = SelectionHeader(_query,
-        onDismiss: _clear);
-      sections.add(selectionHeader);
-    }
-
     if (_isLoading) {
       final loadingIndicator = Expanded(
           child: Center(child: CupertinoActivityIndicator(radius: 15.0)));
       sections.add(loadingIndicator);
-    } else if (_translations != null) {
-      final searchResults = Flexible(
-        child: WordsWidget(_translations, emptyText: "No results.",));
+    } else if (_results != null) {
+      final searchResults = Flexible(child: _buildResultList());
       sections.add(searchResults);
     }
 
@@ -57,39 +48,21 @@ class SearchWidgetState extends State<SearchWidget> {
                 onSubmitted: (q) => _lookup(config, q)));
   }
 
-  void _lookup(Configuration config, String query) async {
-    if (query.isEmpty) {
-      return;
-    }
-    setState(() {
-      _isLoading = true;
-    });
-    final word = Word(query, config.from);
-    final results = await DictionaryService.instance.getTranslations(config, query);
-    if (results == null) {
-      setState(() {
-        _isLoading = false;
-        _query = null;
-        _translations = [];
-      });
-    } else {
-      final translations = results.map((t) {
-        final translation = Word(t.text, config.to);
-        return _makeItem(word, translation);
-      }).toList();
-      setState(() {
-        _isLoading = false;
-        _query = word;
-        _translations = translations;
-      });
-    }
+  Widget _buildResultList() {
+    final items = _results.expand( (tw) {
+      List<WordItem> items = [_makeHeader(tw.word)];
+      final addableItems = tw.translations.map((t) => _makeItem(tw.word, t) ).toList();
+      items.addAll(addableItems);
+      return items;
+    }).toList();
+    return WordList(items, emptyText: "No results.",);
   }
 
-  void _clear() {
-    setState(() {
-        _query = null;
-        _translations = null;
-      });
+  HeaderItem _makeHeader(Word word) {
+    final languageCode = word.language.code.toUpperCase();
+    final categoryName = WordCategories.name(word.category);
+    final text = "$languageCode: ${word.text} [$categoryName]";
+    return HeaderItem(text: text);
   }
 
   AddableItem _makeItem(Word word, Word translation) {
@@ -106,5 +79,19 @@ class SearchWidgetState extends State<SearchWidget> {
       text: translation.text, 
       isAdded: () => vocabulary.contains(translation),
       onTap: onTap);
+  }
+
+  void _lookup(Configuration config, String query) async {
+    if (query.isEmpty) {
+      return;
+    }
+    setState(() {
+      _isLoading = true;
+    });
+    final results = await DictionaryService.instance.getTranslations(config, query);
+    setState(() {
+      _isLoading = false;
+      _results = results;
+    });
   }
 }

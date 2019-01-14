@@ -3,30 +3,23 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../model/OxfordDictionaryModel.dart';
-export '../model/OxfordDictionaryModel.dart';
 import '../model/VocabularyModel.dart';
-export '../model/VocabularyModel.dart';
 
 class DictionaryService {
   // Singleton
   static final DictionaryService instance = DictionaryService._private();
   DictionaryService._private();
 
-  Future<List<Translation>> getTranslations(
+  Future<List<TranslatedWord>> getTranslations(
       Configuration config, String headword) async {
-    final path =
-        'entries/${config.from}/$headword/translations=${config.to}';
+    final path = 'entries/${config.from}/$headword/translations=${config.to}';
     final json = await _request(path);
     if (json == null) {
-      return null;
+      return [];
     }
     final res = TranslationsResponse.fromJson(json);
-    return res.results
-        .expand((r) => r.lexicalEntries)
-        .expand((le) => le.entries)
-        .expand((e) => e.senses)
-        .expand((s) => s.translations)
-        .toList();
+    final entries = res.results.expand((r) => r.lexicalEntries);
+    return entries.map((le) => _parseLexicalEntry(le, config)).toList();
   }
 
   Future<Map<String, dynamic>> _request(String subpath) async {
@@ -41,5 +34,15 @@ class DictionaryService {
       return null;
     }
     return json.decode(response.body);
+  }
+
+  TranslatedWord _parseLexicalEntry(LexicalEntry entry, Configuration config) {
+    final category = WordCategories.fromName(entry.lexicalCategory);
+    final word = Word(entry.text, config.from, category);
+    final rawTranslations =
+        entry.entries.expand((e) => e.senses).expand((s) => s.translations);
+    final translations =
+        rawTranslations.map((t) => Word(t.text, config.to, category)).toList();
+    return TranslatedWord(word, translations);
   }
 }
