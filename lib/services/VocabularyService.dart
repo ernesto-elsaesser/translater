@@ -81,6 +81,17 @@ class VocabularyService with WidgetsBindingObserver {
     return strings.values.toList();
   }
 
+  Map<WordCategory, List<Word>> categorizedWords(Language language) {
+    Map<WordCategory, List<Word>> words = {};
+    for (final cat in WordCategory.values) {
+      words[cat] = [];
+    }
+    for (final r in _relations) {
+      words[r.category].add(r.wordIn(language));
+    }
+    return words;
+  }
+
   int translationCount({DateTime month}) {
     if (month == null) {
       return _relations.length;

@@ -76,15 +76,15 @@ class TranslatedWord {
 class WordRelation {
   Word word1, word2;
   DateTime creationDate;
+  WordCategory category;
 
-  WordRelation(this.word1, this.word2)
-    : creationDate = DateTime.now();
-
-  //bool relates(Word word) => word == word1 || word == word2;
+  WordRelation(this.word1, this.word2) : 
+    creationDate = DateTime.now(),
+    category = word1.category;
 
   WordRelation.fromJson(List<dynamic> json) {
     int catIndex = json[4];
-    WordCategory  category = WordCategory.values[catIndex];
+    category = WordCategory.values[catIndex];
     word1 = Word(json[0], Language.fromCode(json[1]), category);
     word2 = Word(json[2], Language.fromCode(json[3]), category);
     creationDate = DateTime.parse(json[5]);
@@ -96,8 +96,18 @@ class WordRelation {
       word1.language.code, 
       word2.text, 
       word2.language.code, 
-      word1.category.index,
+      category.index,
       creationDate.toString()];
+  }
+
+  Word wordIn(Language language) {
+    if (word1.language == language) {
+      return word1;
+    } else if (word2.language == language) {
+      return word2;
+    } else {
+      return null;
+    }
   }
 
   int get hashCode => word1.hashCode ^ word2.hashCode;

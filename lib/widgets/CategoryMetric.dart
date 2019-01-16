@@ -1,17 +1,40 @@
 import 'package:flutter/cupertino.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 
 import '../services/VocabularyService.dart';
 import 'SectionedTab.dart';
 
-class CategoryMetric extends StatefulWidget {
-  @override
-  CategoryMetricState createState() => new CategoryMetricState();
-}
+class CategoryMetric extends StatelessWidget {
 
-class CategoryMetricState extends State<CategoryMetric> {
+  final Map<WordCategory, List<Word>> categories;
+
+  CategoryMetric() :
+    categories = VocabularyService.instance.categorizedWords(Language.english);
 
   @override
   Widget build(BuildContext context) {
-    return SectionedTab([]);
+    List<Widget> sections = [
+      SizedBox(height: 50),
+      Text("Category Distribution:"),
+      SizedBox(height: 50),
+      SizedBox(height: 250, child: _buildChart())
+    ];
+    return SectionedTab(sections);
+  }
+
+  Widget _buildChart() {
+    final series = charts.Series<WordCategory, int>(
+        id: 'Categories',
+        domainFn: (WordCategory cat, _) => cat.index,
+        measureFn: (WordCategory cat, _) => categories[cat].length,
+        labelAccessorFn: (WordCategory cat, _) => WordCategories.name(cat),
+        data: WordCategory.values,
+      );
+    final renderer = charts.ArcRendererConfig(arcRendererDecorators: [
+          charts.ArcLabelDecorator( labelPosition: charts.ArcLabelPosition.outside)
+        ]);
+    return charts.PieChart([series], 
+      animate: false,
+      defaultRenderer: renderer);
   }
 }
