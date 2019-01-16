@@ -1,16 +1,17 @@
 import 'dart:ui' as ui show window;
 import 'package:flutter/cupertino.dart';
 
-import '../widgets/SearchWidget.dart';
-import '../widgets/VocabularyWidget.dart';
+import 'SearchTab.dart';
+import 'VocabularyTab.dart';
+import 'MetricsTab.dart';
 import '../services/VocabularyService.dart';
 
 class Tab {
   String title;
   IconData icon;
-  WidgetBuilder builder;
+  WidgetBuilder build;
 
-  Tab(this.title, this.icon, this.builder);
+  Tab(this.title, this.icon, this.build);
 }
 
 class TranslaterApp extends StatefulWidget {
@@ -25,9 +26,9 @@ class TranslaterAppState extends State<TranslaterApp> {
   @override
   void initState() {
     _tabs = [
-      Tab('Translate', CupertinoIcons.search, (_) => SearchWidget()),
-      Tab('Vocabulary', CupertinoIcons.book, (_) => VocabularyWidget()),
-      Tab('Metrics', CupertinoIcons.gear, (_) => Container())
+      Tab('Translate', CupertinoIcons.search, (_) => SearchTab()),
+      Tab('Vocabulary', CupertinoIcons.book, (_) => VocabularyTab()),
+      Tab('Metrics', CupertinoIcons.gear, (_) => MetricsTab())
     ];
     super.initState();
     VocabularyService.instance.init();
@@ -58,17 +59,7 @@ class TranslaterAppState extends State<TranslaterApp> {
   CupertinoTabView _buildTab(BuildContext context, int index) {
     return CupertinoTabView(
         defaultTitle: 'Translater', 
-        builder: _pageBuilder(index));
-  }
-
-  WidgetBuilder _pageBuilder(int index) {
-    final tab = _tabs[index];
-    return (context) {
-      final rootWidget = tab.builder(context);
-      return CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(),
-        child: SafeArea(top: true, bottom: true, child: rootWidget));
-    };
+        builder: _tabs[index].build);
   }
 
   Widget _normalizedText(Widget child) {

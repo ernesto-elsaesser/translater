@@ -1,15 +1,16 @@
 import 'package:flutter/cupertino.dart';
 
 import '../services/VocabularyService.dart';
+import 'SectionedTab.dart';
 import 'WordList.dart';
 import 'SplitBox.dart';
 
-class VocabularyWidget extends StatefulWidget {
+class VocabularyTab extends StatefulWidget {
   @override
-  VocabularyWidgetState createState() => new VocabularyWidgetState();
+  VocabularyTabState createState() => new VocabularyTabState();
 }
 
-class VocabularyWidgetState extends State<VocabularyWidget> {
+class VocabularyTabState extends State<VocabularyTab> {
 
   Language _selectedLanguage = Language.english;
 
@@ -25,7 +26,7 @@ class VocabularyWidgetState extends State<VocabularyWidget> {
     final wordList = Flexible(child: _buildWordList());
     sections.add(wordList);
 
-    return Column(children: sections);
+    return SectionedTab(sections);
   }
 
   WordList _buildWordList() {

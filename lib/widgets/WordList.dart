@@ -1,5 +1,9 @@
 import 'package:flutter/cupertino.dart';
 
+import 'ListItem.dart';
+import 'ListHeader.dart';
+import 'ListSeparator.dart';
+
 typedef BoolCallback = bool Function();
 
 class WordList extends StatelessWidget {
@@ -16,8 +20,7 @@ class WordList extends StatelessWidget {
 
     return ListView.separated(
       itemBuilder: (_, int i) => items[i].buildWidget(),
-      separatorBuilder: (_, __) =>
-          Container(height: 1.0, color: CupertinoColors.lightBackgroundGray),
+      separatorBuilder: (_, __) => ListSeparator(),
       itemCount: items.length,
     );
   }
@@ -33,20 +36,13 @@ class HeaderItem implements WordItem {
   HeaderItem({this.text});
 
   Widget buildWidget() {
-    return Container(
-          color: Color(0xFFBBBBDD),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-            child: Text(text, textAlign: TextAlign.center)
-          )
-    );
+    return ListHeader(text: text);
   }
 }
 
 class AddableItem implements WordItem {
   static final plusIcon = Icon(CupertinoIcons.add_circled, color: CupertinoColors.activeGreen);
   static final minusIcon = Icon(CupertinoIcons.minus_circled, color: CupertinoColors.destructiveRed);
-  static final textStyle = TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500);
   
   String text;
   BoolCallback isAdded;
@@ -55,15 +51,10 @@ class AddableItem implements WordItem {
   AddableItem({this.text, this.isAdded, this.onTap});
 
   Widget buildWidget() {
-    final icon = isAdded() ? minusIcon : plusIcon;
-    return GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-            child: Row(children: [
-                Expanded(child: Text(text, style: textStyle)),
-                icon
-              ])));
+    return ListItem(
+      text: text, 
+      style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500), 
+      icon: isAdded() ? minusIcon : plusIcon, 
+      onTap: onTap);
   }
 }

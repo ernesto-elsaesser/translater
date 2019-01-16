@@ -81,6 +81,13 @@ class VocabularyService with WidgetsBindingObserver {
     return strings.values.toList();
   }
 
+  int translationCount({DateTime month}) {
+    if (month == null) {
+      return _relations.length;
+    }
+    return _relations.where((r) => r.creationDate.month == month.month).length;
+  }
+
   void _rebuildIndex() {
     _lookupIndex = {};
     for (final relation in _relations) {

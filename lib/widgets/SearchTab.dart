@@ -2,15 +2,16 @@ import 'package:flutter/cupertino.dart';
 
 import '../services/DictionaryService.dart';
 import '../services/VocabularyService.dart';
+import 'SectionedTab.dart';
 import 'WordList.dart';
 import 'SplitBox.dart';
 
-class SearchWidget extends StatefulWidget {
+class SearchTab extends StatefulWidget {
   @override
-  SearchWidgetState createState() => new SearchWidgetState();
+  SearchTabState createState() => new SearchTabState();
 }
 
-class SearchWidgetState extends State<SearchWidget> {
+class SearchTabState extends State<SearchTab> {
   
   bool _isLoading = false;
   List<TranslatedWord> _results;
@@ -33,7 +34,7 @@ class SearchWidgetState extends State<SearchWidget> {
       sections.add(searchResults);
     }
 
-    return Column(children: sections);
+    return SectionedTab(sections);
   }
 
   Widget _buildSearchField(Configuration config) {
