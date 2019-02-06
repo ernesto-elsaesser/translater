@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 
 import '../services/VocabularyService.dart';
-import 'SectionedTab.dart';
 import 'CategoryMetric.dart';
+import 'GrowthMetric.dart';
+import 'SectionedTab.dart';
 import 'ListItem.dart';
 import 'ListSeparator.dart';
 
@@ -19,6 +20,7 @@ class MetricsTab extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Widget> sections = [_buildKeyIndicatorBox()];
     List<Metric> metrics = [
+      Metric("Vocabulary growth", (_) => GrowthMetric()),
       Metric("Word categories", (_) => CategoryMetric())
     ];
     for (final m in metrics) {
@@ -31,17 +33,22 @@ class MetricsTab extends StatelessWidget {
   }
 
   Widget _buildKeyIndicatorBox() {
+    final totalCount = VocabularyService.instance.translationCount();
+    final today = DateTime.now();
+    final monthStart = DateTime(today.year, today.month);
+    final countUntilLastMonth = VocabularyService.instance.translationCount(before: monthStart);
+
+    final totalString = totalCount.toString();
+    final monthString = (totalCount - countUntilLastMonth).toString();
     final numberStyle = TextStyle(fontSize: 40.0, fontWeight: FontWeight.w600);
     final subtitleStyle = TextStyle(fontSize: 20.0, fontWeight: FontWeight.w300);
-    final totalCount = VocabularyService.instance.translationCount().toString();
-    final now = DateTime.now();
-    final monthCount = VocabularyService.instance.translationCount(month: now).toString();
+
     List<Widget> lines =[
       SizedBox(height: 50),
-      Text(totalCount, style: numberStyle),
+      Text(totalString, style: numberStyle),
       Text("words in total", style: subtitleStyle),
       SizedBox(height: 25),
-      Text(monthCount, style: numberStyle),
+      Text(monthString, style: numberStyle),
       Text("words this month", style: subtitleStyle),
     ];
     return Expanded(child:

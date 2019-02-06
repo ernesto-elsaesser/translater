@@ -38,6 +38,7 @@ class TranslaterAppState extends State<TranslaterApp> {
   Widget build(BuildContext context) {
     return CupertinoApp(
         title: 'Translater',
+        debugShowCheckedModeBanner: false,
         home: _normalizedText(CupertinoTabScaffold(
             tabBar: CupertinoTabBar(
               items: <BottomNavigationBarItem>[

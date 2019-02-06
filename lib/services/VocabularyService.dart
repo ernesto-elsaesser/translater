@@ -3,15 +3,19 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 
 import '../model/VocabularyModel.dart';
 export '../model/VocabularyModel.dart';
 
 class VocabularyService with WidgetsBindingObserver {
+
   // Singleton
   static final VocabularyService instance = VocabularyService._private();
   VocabularyService._private();
+
+  static final bool _useSampleData = true; // use only for testing
 
   Set<WordRelation> _relations = Set();
   Map<Language, Map<String, TranslatedWord>> _lookupIndex = {};
@@ -37,8 +41,13 @@ class VocabularyService with WidgetsBindingObserver {
 
   void _loadFromDisk() async {
     try {
-      final file = await _vocabularyFile();
-      final json = await file.readAsString();
+      String json;
+      if (_useSampleData) {
+        json = await rootBundle.loadString('assets/sampledata.json');
+      } else {
+        final file = await _vocabularyFile();
+        json = await file.readAsString();
+      }
       List<dynamic> data = jsonDecode(json);
       _relations = data.map((list) => WordRelation.fromJson(list)).toSet();
       _rebuildIndex();
@@ -92,11 +101,11 @@ class VocabularyService with WidgetsBindingObserver {
     return words;
   }
 
-  int translationCount({DateTime month}) {
-    if (month == null) {
+  int translationCount({DateTime before}) {
+    if (before == null) {
       return _relations.length;
     }
-    return _relations.where((r) => r.creationDate.month == month.month).length;
+    return _relations.where((r) => r.creationDate.isBefore(before)).length;
   }
 
   void _rebuildIndex() {
