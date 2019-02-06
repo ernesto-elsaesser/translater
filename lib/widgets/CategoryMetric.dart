@@ -6,10 +6,10 @@ import 'SectionedTab.dart';
 
 class CategoryMetric extends StatelessWidget {
 
-  final Map<WordCategory, List<Word>> categories;
+  final Map<WordCategory, List<WordRelation>> categories;
 
   CategoryMetric() :
-    categories = VocabularyService.instance.categorizedWords(Language.english);
+    categories = VocabularyService.instance.categorizedRelations(Language.english);
 
   @override
   Widget build(BuildContext context) {

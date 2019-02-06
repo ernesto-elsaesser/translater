@@ -14,7 +14,7 @@ class SearchTab extends StatefulWidget {
 class SearchTabState extends State<SearchTab> {
   
   bool _isLoading = false;
-  List<TranslatedWord> _results;
+  List<TranslationOptions> _results;
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +70,7 @@ class SearchTabState extends State<SearchTab> {
     final vocabulary = VocabularyService.instance;
     VoidCallback onTap = () {
       if (vocabulary.contains(word)) {
-        vocabulary.unlearn(word, translation);
+        vocabulary.unlearn(word);
       } else {
         vocabulary.learn(word, translation);
       }

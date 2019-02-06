@@ -17,8 +17,8 @@ class VocabularyService with WidgetsBindingObserver {
 
   static final bool _useSampleData = true; // use only for testing
 
-  Set<WordRelation> _relations = Set();
-  Map<Language, Map<String, TranslatedWord>> _lookupIndex = {};
+  Set<WordRelation> _rawRelations = Set();
+  Map<Language, List<WordRelation>> _relationsFromLanguage = {};
 
   void init() {
     WidgetsBinding.instance.addObserver(this);
@@ -34,9 +34,9 @@ class VocabularyService with WidgetsBindingObserver {
 
   void _writeToDisk() async {
     final file = await _vocabularyFile();
-    final json = jsonEncode(_relations.toList());
+    final json = jsonEncode(_rawRelations.toList());
     file.writeAsString(json);
-    print("Saved vocabulary on disk (${_relations.length} entries).");
+    print("Saved vocabulary on disk (${_rawRelations.length} entries).");
   }
 
   void _loadFromDisk() async {
@@ -49,9 +49,9 @@ class VocabularyService with WidgetsBindingObserver {
         json = await file.readAsString();
       }
       List<dynamic> data = jsonDecode(json);
-      _relations = data.map((list) => WordRelation.fromJson(list)).toSet();
-      _rebuildIndex();
-      print("Loaded vocabulary from disk (${_relations.length} entries).");
+      _rawRelations = data.map((list) => WordRelation.fromJson(list)).toSet();
+      _rebuildLanguageLists();
+      print("Loaded vocabulary from disk (${_rawRelations.length} entries).");
     } catch (e) {
       print("Loading vocabulary from disk failed: $e");
     }
@@ -64,67 +64,60 @@ class VocabularyService with WidgetsBindingObserver {
 
   void learn(Word word, Word translation) {
     final relation = WordRelation(word, translation);
-    _relations.add(relation);
-    _rebuildIndex();
+    _rawRelations.add(relation);
+    _rebuildLanguageLists();
   }
 
-  void unlearn(Word word, Word translation) {
-    final relation = WordRelation(word, translation);
-    _relations.remove(relation);
-    _rebuildIndex();
+  void unlearn(Word word) {
+    _rawRelations = _rawRelations.where((r) => r.word != word && r.translation != word);
+    _rebuildLanguageLists();
   }
 
   bool contains(Word word) {
-    final strings = _lookupIndex[word.language];
-    if (strings == null) {
+    final translationsFromLanguage = _relationsFromLanguage[word.language];
+    if (translationsFromLanguage == null) {
       return false;
     }
-    return strings.containsKey(word.text);
+    return translationsFromLanguage.map((t) => t.word).contains(word);
   }
 
-  List<TranslatedWord> knownTranslations(Language language) {
-    final strings = _lookupIndex[language];
-    if (strings == null) {
-      return [];
-    }
-    return strings.values.toList();
+  List<WordRelation> knownRelations(Language language) {
+    return _relationsFromLanguage[language] ?? [];
   }
 
-  Map<WordCategory, List<Word>> categorizedWords(Language language) {
-    Map<WordCategory, List<Word>> words = {};
+  Map<WordCategory, List<WordRelation>> categorizedRelations(Language language) {
+    Map<WordCategory, List<WordRelation>> categorizedRelations = {};
     for (final cat in WordCategory.values) {
-      words[cat] = [];
+      categorizedRelations[cat] = [];
     }
-    for (final r in _relations) {
-      words[r.category].add(r.wordIn(language));
+    final translationsFromLanguage = _relationsFromLanguage[language];
+    if (translationsFromLanguage != null) {
+      for (final t in translationsFromLanguage) {
+        categorizedRelations[t.category].add(t);
+      }
     }
-    return words;
+    return categorizedRelations;
   }
 
   int translationCount({DateTime before}) {
     if (before == null) {
-      return _relations.length;
+      return _rawRelations.length;
     }
-    return _relations.where((r) => r.creationDate.isBefore(before)).length;
+    return _rawRelations.where((r) => r.addedAt.isBefore(before)).length;
   }
 
-  void _rebuildIndex() {
-    _lookupIndex = {};
-    for (final relation in _relations) {
-      _addToIndex(relation.word1, relation.word2);
-      _addToIndex(relation.word2, relation.word1);
+  void _rebuildLanguageLists() {
+    _relationsFromLanguage = {};
+    for (final relation in _rawRelations) {
+      final reverseRelation = WordRelation(relation.translation, relation.word);
+      _addTranslationForLanguage(relation);
+      _addTranslationForLanguage(reverseRelation);
     }
   }
 
-  void _addToIndex(Word word, Word translation) {
-    var strings = _lookupIndex[word.language] ?? {};
-    var translatedWord = strings[word.text];
-    if (translatedWord == null) {
-      translatedWord = TranslatedWord(word, [translation]);
-    } else {
-      translatedWord.translations.add(translation);
-    }
-    strings[word.text] = translatedWord;
-    _lookupIndex[word.language] = strings;
+  void _addTranslationForLanguage(WordRelation translation) {
+    var languageList = _relationsFromLanguage[translation.word.language] ?? [];
+    languageList.add(translation);
+    _relationsFromLanguage[translation.word.language] = languageList;
   }
 }

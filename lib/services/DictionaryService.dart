@@ -10,7 +10,7 @@ class DictionaryService {
   static final DictionaryService instance = DictionaryService._private();
   DictionaryService._private();
 
-  Future<List<TranslatedWord>> getTranslations(
+  Future<List<TranslationOptions>> getTranslations(
       Configuration config, String headword) async {
     final path = 'entries/${config.from}/$headword/translations=${config.to}';
     final json = await _request(path);
@@ -36,13 +36,13 @@ class DictionaryService {
     return json.decode(response.body);
   }
 
-  TranslatedWord _parseLexicalEntry(LexicalEntry entry, Configuration config) {
+  TranslationOptions _parseLexicalEntry(LexicalEntry entry, Configuration config) {
     final category = WordCategories.fromName(entry.lexicalCategory);
     final word = Word(entry.text, config.from, category);
     final rawTranslations =
         entry.entries.expand((e) => e.senses).expand((s) => s.translations);
     final translations =
         rawTranslations.map((t) => Word(t.text, config.to, category)).toList();
-    return TranslatedWord(word, translations);
+    return TranslationOptions(word, translations);
   }
 }

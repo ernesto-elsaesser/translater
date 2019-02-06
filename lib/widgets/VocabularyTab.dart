@@ -31,20 +31,18 @@ class VocabularyTabState extends State<VocabularyTab> {
 
   WordList _buildWordList() {
     final vocabulary = VocabularyService.instance;
-    final translatedWords = vocabulary.knownTranslations(_selectedLanguage);
-    final items = translatedWords.expand( (tw) {
-      return tw.translations.map( (t) => _makeItem(tw.word, t) );
-    }).toList();
+    final relations = vocabulary.knownRelations(_selectedLanguage);
+    final items = relations.map(_makeItem).toList();
     return WordList(items, emptyText: "No entries.");
   }
 
-  AddableItem _makeItem(Word word, Word translation) {
+  AddableItem _makeItem(WordRelation relation) {
     VoidCallback onTap = () {
-      VocabularyService.instance.unlearn(word, translation);
+      VocabularyService.instance.unlearn(relation.word);
       setState(() {});
     };
     return AddableItem(
-      text: "${word.text} - ${translation.text}", 
+      text: "${relation.word.text} - ${relation.translation.text}", 
       isAdded: () => true, 
       onTap: onTap);
   }

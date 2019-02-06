@@ -66,51 +66,42 @@ class Word {
   bool operator ==(o) => o is Word && o.text == text && o.language == language;
 }
 
-class TranslatedWord {
+class TranslationOptions {
   Word word;
   List<Word> translations;
 
-  TranslatedWord(this.word, this.translations);
+  TranslationOptions(this.word, this.translations);
 }
 
 class WordRelation {
-  Word word1, word2;
-  DateTime creationDate;
+  Word word;
+  Word translation;
+  DateTime addedAt;
   WordCategory category;
 
-  WordRelation(this.word1, this.word2) : 
-    creationDate = DateTime.now(),
-    category = word1.category;
+  WordRelation(this.word, this.translation) : 
+    addedAt = DateTime.now(),
+    category = word.category;
 
   WordRelation.fromJson(List<dynamic> json) {
     int catIndex = json[4];
     category = WordCategory.values[catIndex];
-    word1 = Word(json[0], Language.fromCode(json[1]), category);
-    word2 = Word(json[2], Language.fromCode(json[3]), category);
-    creationDate = DateTime.parse(json[5]);
+    word = Word(json[0], Language.fromCode(json[1]), category);
+    translation = Word(json[2], Language.fromCode(json[3]), category);
+    addedAt = DateTime.parse(json[5]);
   }
 
   List<dynamic> toJson() {
     return [
-      word1.text, 
-      word1.language.code, 
-      word2.text, 
-      word2.language.code, 
+      word.text, 
+      word.language.code, 
+      translation.text, 
+      translation.language.code, 
       category.index,
-      creationDate.toString()];
+      addedAt.toString()];
   }
 
-  Word wordIn(Language language) {
-    if (word1.language == language) {
-      return word1;
-    } else if (word2.language == language) {
-      return word2;
-    } else {
-      return null;
-    }
-  }
-
-  int get hashCode => word1.hashCode ^ word2.hashCode;
+  int get hashCode => word.hashCode ^ translation.hashCode;
   bool operator ==(o) => o is WordRelation && 
-    ((o.word1 == word1 && o.word2 == word2) || (o.word1 == word2 && o.word2 == word1));
+    ((o.word == word && o.translation == translation) || (o.word == translation && o.translation == word));
 }
