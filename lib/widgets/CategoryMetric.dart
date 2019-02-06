@@ -16,8 +16,8 @@ class CategoryMetric extends StatelessWidget {
     List<Widget> sections = [
       SizedBox(height: 50),
       Text("Category Distribution:"),
-      SizedBox(height: 50),
-      SizedBox(height: 250, child: _buildChart())
+      SizedBox(height: 60),
+      Center(child: SizedBox(height: 230, child: _buildChart()))
     ];
     return SectionedTab(sections);
   }
@@ -28,7 +28,7 @@ class CategoryMetric extends StatelessWidget {
         domainFn: (WordCategory cat, _) => cat.index,
         measureFn: (WordCategory cat, _) => categories[cat].length,
         labelAccessorFn: (WordCategory cat, _) => WordCategories.name(cat),
-        data: WordCategory.values,
+        data: categories.keys.toList(),
       );
     final renderer = charts.ArcRendererConfig(arcRendererDecorators: [
           charts.ArcLabelDecorator( labelPosition: charts.ArcLabelPosition.outside)

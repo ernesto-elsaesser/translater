@@ -68,17 +68,14 @@ class VocabularyService with WidgetsBindingObserver {
     _rebuildLanguageLists();
   }
 
-  void unlearn(Word word) {
-    _rawRelations = _rawRelations.where((r) => r.word != word && r.translation != word);
+  void unlearn(WordRelation relation) {
+    _rawRelations.remove(relation);
     _rebuildLanguageLists();
   }
 
-  bool contains(Word word) {
-    final translationsFromLanguage = _relationsFromLanguage[word.language];
-    if (translationsFromLanguage == null) {
-      return false;
-    }
-    return translationsFromLanguage.map((t) => t.word).contains(word);
+  WordRelation relationBetween(Word word, Word translation) {
+    final identicalRelation = WordRelation(word, translation);
+    return _rawRelations.firstWhere((r) => r == identicalRelation, orElse: () => null);
   }
 
   List<WordRelation> knownRelations(Language language) {
@@ -96,6 +93,7 @@ class VocabularyService with WidgetsBindingObserver {
         categorizedRelations[t.category].add(t);
       }
     }
+    categorizedRelations.remove(WordCategory.other);
     return categorizedRelations;
   }
 

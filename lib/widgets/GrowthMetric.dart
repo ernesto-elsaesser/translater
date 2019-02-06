@@ -12,7 +12,7 @@ class GrowthMetric extends StatelessWidget {
       SizedBox(height: 50),
       Text("Growth in the past 6 months:"),
       SizedBox(height: 50),
-      SizedBox(height: 250, child: _buildChart())
+      Center( child: SizedBox(height: 250, width: 320, child: _buildChart()))
     ];
     return SectionedTab(sections);
   }

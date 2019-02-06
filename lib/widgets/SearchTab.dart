@@ -69,8 +69,9 @@ class SearchTabState extends State<SearchTab> {
   AddableItem _makeItem(Word word, Word translation) {
     final vocabulary = VocabularyService.instance;
     VoidCallback onTap = () {
-      if (vocabulary.contains(word)) {
-        vocabulary.unlearn(word);
+      final relation = vocabulary.relationBetween(word, translation);
+      if (relation != null) {
+        vocabulary.unlearn(relation);
       } else {
         vocabulary.learn(word, translation);
       }
@@ -78,7 +79,7 @@ class SearchTabState extends State<SearchTab> {
     };
     return AddableItem(
       text: translation.text, 
-      isAdded: () => vocabulary.contains(translation),
+      isAdded: () => vocabulary.relationBetween(word, translation) != null,
       onTap: onTap);
   }
 

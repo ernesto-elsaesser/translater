@@ -38,7 +38,7 @@ class VocabularyTabState extends State<VocabularyTab> {
 
   AddableItem _makeItem(WordRelation relation) {
     VoidCallback onTap = () {
-      VocabularyService.instance.unlearn(relation.word);
+      VocabularyService.instance.unlearn(relation);
       setState(() {});
     };
     return AddableItem(
