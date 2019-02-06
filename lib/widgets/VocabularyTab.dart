@@ -30,8 +30,8 @@ class VocabularyTabState extends State<VocabularyTab> {
   }
 
   WordList _buildWordList() {
-    final vocabulary = VocabularyService.instance;
-    final relations = vocabulary.knownRelations(_selectedLanguage);
+    final relations = VocabularyService.instance.knownRelations(_selectedLanguage);
+    relations.sort();
     final items = relations.map(_makeItem).toList();
     return WordList(items, emptyText: "No entries.");
   }

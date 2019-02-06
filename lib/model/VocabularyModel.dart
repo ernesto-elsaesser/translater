@@ -55,7 +55,7 @@ class WordCategories {
   }
 }
 
-class Word {
+class Word implements Comparable<Word> {
   String text;
   Language language;
   WordCategory category;
@@ -64,6 +64,7 @@ class Word {
 
   int get hashCode => text.hashCode ^ language.hashCode;
   bool operator ==(o) => o is Word && o.text == text && o.language == language;
+  int compareTo(Word other) => text.toLowerCase().compareTo(other.text.toLowerCase());
 }
 
 class TranslationOptions {
@@ -73,7 +74,7 @@ class TranslationOptions {
   TranslationOptions(this.word, this.translations);
 }
 
-class WordRelation {
+class WordRelation implements Comparable<WordRelation> {
   Word word;
   Word translation;
   DateTime addedAt;
@@ -102,6 +103,17 @@ class WordRelation {
   }
 
   int get hashCode => word.hashCode ^ translation.hashCode;
-  bool operator ==(o) => o is WordRelation && 
-    ((o.word == word && o.translation == translation) || (o.word == translation && o.translation == word));
+  bool operator ==(o) { 
+    if (!(o is WordRelation)) {
+      return false;
+    }
+    if (o.word == word && o.translation == translation) {
+      return true;
+    } else if (o.word == translation && o.translation == word) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  int compareTo(WordRelation other) => word.compareTo(other.word);
 }
