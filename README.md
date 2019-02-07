@@ -15,7 +15,7 @@ Falls die App auf einem physikalischen Gerät ausgeführt werden soll wird eine 
 
 ## Bauen mit Flutter und Visual Studio Code Plugin
 
-Öffnen Sie einfach den Projekt-Ordner (also den Root-Ordern dieses Repositories) in Visual Studio Code und wählen sie 'Debug > Start Debugging'. Die App sollte automatisch kompiliert und auf dem gewählten Gerät gestartet werden.
+Öffnen Sie den Projekt-Ordner (also den Root-Ordern dieses Repositories) in Visual Studio Code. Bestätigen Sie ggf. das laden benötigter Pakete. Sobald alle Pakete geladen sind wählen sie 'Debug > Start Debugging'. Die App sollte automatisch kompiliert und auf dem gewählten Gerät gestartet werden.
 
 ## Bauen mit Flutter von der Befehlszeile
 
