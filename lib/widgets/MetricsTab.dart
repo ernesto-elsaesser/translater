@@ -46,10 +46,10 @@ class MetricsTab extends StatelessWidget {
     List<Widget> lines =[
       SizedBox(height: 50),
       Text(totalString, style: numberStyle),
-      Text("words in total", style: subtitleStyle),
+      Text("translations in total", style: subtitleStyle),
       SizedBox(height: 25),
       Text(monthString, style: numberStyle),
-      Text("words this month", style: subtitleStyle),
+      Text("added this month", style: subtitleStyle),
     ];
     return Expanded(child:
       Column(children: lines)
