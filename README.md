@@ -11,7 +11,7 @@ Zur Installation der iOS-App werden benötigt
 
 Alternativ kann die App unter Windows / Linux als Android-App ausgeführt werden, für diese Plattform wurde aber nicht getestet.
 
-Falls die App auf einem physikalischen Gerät ausgeführt werden soll wird eine Apple Developer ID benötigt. Hierzu muss das Signing manuell im Xcode-Projekt angepasst werden.
+Falls die App auf einem physikalischen Gerät ausgeführt werden soll wird eine Apple Developer ID benötigt. Hierzu muss das Signing manuell in Xcode-Projekt angepasst werden.
 
 ## Bauen mit Flutter und Visual Studio Code Plugin
 
