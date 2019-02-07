@@ -1,6 +1,6 @@
 # Installation
 
-## Vorraussetzungen
+## Voraussetzungen
 
 Zur Installation der iOS-App werden benötigt
 
@@ -15,7 +15,7 @@ Falls die App auf einem physikalischen Gerät ausgeführt werden soll wird eine 
 
 ## Bauen mit Flutter und Visual Studio Code Plugin
 
-Öffnen Sie einfach den Projekt-Ordner (also den Root-Ordern dieses Repositories) mit Visual Studio Code und wählen sie 'Debug > Start Debugging'. Die App sollte automatisch kompiliert und auf dem gewählten Gerät gestartet werden.
+Öffnen Sie einfach den Projekt-Ordner (also den Root-Ordern dieses Repositories) in Visual Studio Code und wählen sie 'Debug > Start Debugging'. Die App sollte automatisch kompiliert und auf dem gewählten Gerät gestartet werden.
 
 ## Bauen mit Flutter von der Befehlszeile
 
