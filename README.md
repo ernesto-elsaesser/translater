@@ -1,30 +1,21 @@
-# Installation
+# Translater
 
-## Voraussetzungen
+## Features
 
-Zur Installation der iOS-App werden benötigt
+The app features three tabs:
 
-- MacOS
-- Xcode (+ Simulator)
-- Flutter (https://flutter.io/docs/get-started/install)
-- ggf. Flutter IDE-Plugin (https://flutter.io/docs/get-started/editor)
+- Translate: Find german translations of english words or vice versa. Add word pairs to the vocabulary.
+- Vocabulary: Browse and manage your vocabulary.
+- Metrics: Explore the size and structure of your vocabulary.
 
-Alternativ kann die App unter Windows / Linux als Android-App ausgeführt werden, für diese Plattform wurde aber nicht getestet.
+## Screenshots
 
-Falls die App auf einem physikalischen Gerät ausgeführt werden soll wird eine Apple Developer ID benötigt. Hierzu muss das Signing manuell in Xcode-Projekt angepasst werden.
+![6 screenshots from iOS](http://TODO)
 
-## Bauen mit Flutter und Visual Studio Code Plugin
+## Installation
 
-Öffnen Sie den Projekt-Ordner (also den Root-Ordern dieses Repositories) in Visual Studio Code. Bestätigen Sie ggf. das laden benötigter Pakete. Sobald alle Pakete geladen sind wählen sie 'Debug > Start Debugging'. Die App sollte automatisch kompiliert und auf dem gewählten Gerät gestartet werden.
+This is a Flutter project. To build and run the app, Flutter and iOS or Android tooling is required (https://flutter.io/docs/get-started/install).
 
-## Bauen mit Flutter von der Befehlszeile
+## Sample Data
 
-Führen Sie auf der Befehlszeile 
-
-> flutter run
-
-aus. Falls mehrere Geräte verfügbar sind, führen Sie erst
-
-> flutter devices
-
-aus, wählen Sie die gewünschte Device ID und geben diese beim Aufruf des `run` Befehls mit der -d Option an.
+The app provides a sample vocabulary which can loaded at launch instead of the actually persisted data. This mechanism is controlled by the flag `_useSampleData` in the file `lib/services/DictionaryService.dart`.
