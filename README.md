@@ -18,4 +18,4 @@ This is a Flutter project. To build and run the app, Flutter and iOS or Android 
 
 ## Sample Data
 
-The app provides a sample vocabulary which can loaded at launch instead of the actually persisted data. This mechanism is controlled by the flag `_useSampleData` in the [VocabularyService]https://github.com/ernesto-elsaesser/translater/blob/master/lib/services/VocabularyService.dart#L18
+The app provides a sample vocabulary which can loaded at launch instead of the actually persisted data. This mechanism is controlled by the flag `_useSampleData` in the [VocabularyService](https://github.com/ernesto-elsaesser/translater/blob/master/lib/services/VocabularyService.dart#L18)
