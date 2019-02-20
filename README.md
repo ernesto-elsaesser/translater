@@ -10,7 +10,7 @@ The app features three tabs:
 
 ## Screenshots
 
-![6 screenshots from iOS](http://TODO)
+![6 screenshots from iOS](https://raw.githubusercontent.com/ernesto-elsaesser/translater/master/screenshots.png)
 
 ## Installation
 
@@ -18,4 +18,4 @@ This is a Flutter project. To build and run the app, Flutter and iOS or Android 
 
 ## Sample Data
 
-The app provides a sample vocabulary which can loaded at launch instead of the actually persisted data. This mechanism is controlled by the flag `_useSampleData` in the file `lib/services/DictionaryService.dart`.
+The app provides a sample vocabulary which can loaded at launch instead of the actually persisted data. This mechanism is controlled by the flag `_useSampleData` in the [VocabularyService]https://github.com/ernesto-elsaesser/translater/blob/master/lib/services/VocabularyService.dart#L18
