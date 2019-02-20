@@ -58,15 +58,19 @@ class MetricsTab extends StatelessWidget {
 
   Widget _buildMenuItem(Metric metric, BuildContext context) {
     final chevron = Icon(CupertinoIcons.right_chevron, color: CupertinoColors.lightBackgroundGray);
-    final route = CupertinoPageRoute(
-      title: metric.displayName, 
-      builder: metric.builder);
     return ListItem(
       text: metric.displayName,
       style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w400),
       icon: chevron,
       padding: 20.0,
-      onTap: () => Navigator.push(context, route)
+      onTap: () => _pushMetric(metric, context)
     );
+  }
+
+  void _pushMetric(Metric metric, BuildContext context) {
+    final route = CupertinoPageRoute(
+      title: metric.displayName, 
+      builder: metric.builder);
+    Navigator.push(context, route);
   }
 }
