@@ -3,11 +3,11 @@ import 'package:flutter/cupertino.dart';
 import '../services/VocabularyService.dart';
 import 'SectionedTab.dart';
 import 'WordList.dart';
-import 'SplitBox.dart';
+import 'LanguageSwitcher.dart';
 
 class VocabularyTab extends StatefulWidget {
   @override
-  VocabularyTabState createState() => new VocabularyTabState();
+  VocabularyTabState createState() => VocabularyTabState();
 }
 
 class VocabularyTabState extends State<VocabularyTab> {
@@ -17,9 +17,10 @@ class VocabularyTabState extends State<VocabularyTab> {
   @override
   Widget build(BuildContext context) {
 
-    final languageSwitcher = SplitBox(
-      _buildLangaugeButton(Language.english),
-      _buildLangaugeButton(Language.german)
+    final languageSwitcher = LanguageSwitcher(
+      Language.english, Language.german,
+      selected: _selectedLanguage,
+      onSwitch: _switchLanguage
     );
     List<Widget> sections = [languageSwitcher];
 
@@ -45,16 +46,6 @@ class VocabularyTabState extends State<VocabularyTab> {
       text: "${relation.word.text} - ${relation.translation.text}", 
       isAdded: () => true, 
       onTap: onTap);
-  }
-
-  CupertinoButton _buildLangaugeButton(Language language) {
-    final isSelected = _selectedLanguage == language;
-    final color = isSelected ? Color(0xFFBBBBDD) : CupertinoColors.white;
-    final textStyle = TextStyle(color: CupertinoColors.black);
-    return CupertinoButton(
-      child: Text(language.code.toUpperCase(), style: textStyle),
-      color: color,
-      onPressed: () => _switchLanguage(language));
   }
 
   void _switchLanguage(Language language) {

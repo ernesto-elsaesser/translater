@@ -16,7 +16,7 @@ class Tab {
 
 class TranslaterApp extends StatefulWidget {
   @override
-  TranslaterAppState createState() => new TranslaterAppState();
+  TranslaterAppState createState() => TranslaterAppState();
 }
 
 class TranslaterAppState extends State<TranslaterApp> {

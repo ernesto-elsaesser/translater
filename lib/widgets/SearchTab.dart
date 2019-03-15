@@ -4,11 +4,11 @@ import '../services/DictionaryService.dart';
 import '../services/VocabularyService.dart';
 import 'SectionedTab.dart';
 import 'WordList.dart';
-import 'SplitBox.dart';
+import 'BilingualSearchField.dart';
 
 class SearchTab extends StatefulWidget {
   @override
-  SearchTabState createState() => new SearchTabState();
+  SearchTabState createState() => SearchTabState();
 }
 
 class SearchTabState extends State<SearchTab> {
@@ -18,9 +18,10 @@ class SearchTabState extends State<SearchTab> {
 
   @override
   Widget build(BuildContext context) {
-    final searchBar = SplitBox(
-      _buildSearchField(Configuration.englishToGerman),
-      _buildSearchField(Configuration.germanToEnglish)
+    final searchBar = BilingualSearchField(
+      Language.english,
+      Language.german,
+      searchCallback: _lookup,
     );
 
     List<Widget> sections = [searchBar];
@@ -35,18 +36,6 @@ class SearchTabState extends State<SearchTab> {
     }
 
     return SectionedTab(sections);
-  }
-
-  Widget _buildSearchField(Configuration config) {
-    return Container(
-            color: CupertinoColors.white,
-            child: CupertinoTextField(
-                placeholder: config.toString(),
-                decoration: null,
-                clearButtonMode: OverlayVisibilityMode.editing,
-                autocorrect: false,
-                padding: EdgeInsets.all(10.0),
-                onSubmitted: (q) => _lookup(config, q)));
   }
 
   Widget _buildResultList() {

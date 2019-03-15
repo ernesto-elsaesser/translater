@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import '../services/VocabularyService.dart';
 import 'CategoryMetric.dart';
 import 'GrowthMetric.dart';
+import 'RetentionMetric.dart';
 import 'SectionedTab.dart';
 import 'ListItem.dart';
 import 'ListSeparator.dart';
@@ -21,7 +22,8 @@ class MetricsTab extends StatelessWidget {
     List<Widget> sections = [_buildKeyIndicatorBox()];
     List<Metric> metrics = [
       Metric("Vocabulary growth", (_) => GrowthMetric()),
-      Metric("Word categories", (_) => CategoryMetric())
+      Metric("Word categories", (_) => CategoryMetric()),
+      Metric("Retention", (_) => RetentionMetric())
     ];
     for (final m in metrics) {
       sections.add(ListSeparator());

@@ -13,11 +13,7 @@ class Language {
 
 class Configuration {
   Language from, to;
-
-  static Configuration germanToEnglish = Configuration._private(Language.german, Language.english);
-  static Configuration englishToGerman = Configuration._private(Language.english, Language.german);
-
-  Configuration._private(this.from, this.to);
+  Configuration(this.from, this.to);
 
   String toString() {
     return '${from.code.toUpperCase()} > ${to.code.toUpperCase()}';
