@@ -1,23 +1,18 @@
-class Language {
-  String code;
+enum Language { english, german }
 
-  static final Language english = Language.fromCode('en');
-  static final Language german = Language.fromCode('de');
+class Languages {
 
-  Language.fromCode(this.code);
-
-  String toString() => code;
-  int get hashCode => code.hashCode;
-  bool operator ==(o) => o is Language && o.code == code;
+  static String shortcode(Language language) {
+    switch (language) {
+      case Language.english: return 'EN';
+      case Language.german: return 'DE';
+    }
+  }
 }
 
-class Configuration {
+class SearchDirection {
   Language from, to;
-  Configuration(this.from, this.to);
-
-  String toString() {
-    return '${from.code.toUpperCase()} > ${to.code.toUpperCase()}';
-  }
+  SearchDirection(this.from, this.to);
 }
 
 enum WordCategory { noun, verb, adjective, other }
@@ -83,17 +78,17 @@ class WordRelation implements Comparable<WordRelation> {
   WordRelation.fromJson(List<dynamic> json) {
     int catIndex = json[4];
     category = WordCategory.values[catIndex];
-    word = Word(json[0], Language.fromCode(json[1]), category);
-    translation = Word(json[2], Language.fromCode(json[3]), category);
+    word = Word(json[0], Language.values[json[1]], category);
+    translation = Word(json[2], Language.values[json[3]], category);
     addedAt = DateTime.parse(json[5]);
   }
 
   List<dynamic> toJson() {
     return [
       word.text, 
-      word.language.code, 
+      word.language.index, 
       translation.text, 
-      translation.language.code, 
+      translation.language.index, 
       category.index,
       addedAt.toString()];
   }

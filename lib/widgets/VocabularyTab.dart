@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
+import '../services/ConfigurationService.dart';
 import '../services/VocabularyService.dart';
 import 'SectionedTab.dart';
 import 'WordList.dart';
@@ -12,13 +13,12 @@ class VocabularyTab extends StatefulWidget {
 
 class VocabularyTabState extends State<VocabularyTab> {
 
-  Language _selectedLanguage = Language.english;
+  Language _selectedLanguage = ConfigurationService.sourceLanguage;
 
   @override
   Widget build(BuildContext context) {
 
     final languageSwitcher = LanguageSwitcher(
-      Language.english, Language.german,
       selected: _selectedLanguage,
       onSwitch: _switchLanguage
     );

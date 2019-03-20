@@ -18,12 +18,7 @@ class SearchTabState extends State<SearchTab> {
 
   @override
   Widget build(BuildContext context) {
-    final searchBar = BilingualSearchField(
-      Language.english,
-      Language.german,
-      searchCallback: _lookup,
-    );
-
+    final searchBar = BilingualSearchField(_lookup);
     List<Widget> sections = [searchBar];
 
     if (_isLoading) {
@@ -49,7 +44,7 @@ class SearchTabState extends State<SearchTab> {
   }
 
   HeaderItem _makeHeader(Word word) {
-    final languageCode = word.language.code.toUpperCase();
+    final languageCode = Languages.shortcode(word.language);
     final categoryName = WordCategories.name(word.category);
     final text = "$languageCode: ${word.text} [$categoryName]";
     return HeaderItem(text: text);
@@ -72,14 +67,14 @@ class SearchTabState extends State<SearchTab> {
       onTap: onTap);
   }
 
-  void _lookup(Configuration config, String query) async {
+  void _lookup(SearchDirection direction, String query) async {
     if (query.isEmpty) {
       return;
     }
     setState(() {
       _isLoading = true;
     });
-    final results = await DictionaryService.instance.getTranslations(config, query);
+    final results = await DictionaryService.instance.getTranslations(direction, query);
     setState(() {
       _isLoading = false;
       _results = results;

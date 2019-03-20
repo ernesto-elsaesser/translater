@@ -2,15 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../model/VocabularyModel.dart';
+import '../services/ConfigurationService.dart';
 
 class LanguageSwitcher extends StatelessWidget {
   const LanguageSwitcher(
-    this.left, 
-    this.right, 
-    {@required this.selected, 
+    {@required this.selected,
     @required this.onSwitch});
 
-  final Language left, right, selected;
+  final Language selected;
   final Function(Language) onSwitch;
 
   @override
@@ -18,19 +17,20 @@ class LanguageSwitcher extends StatelessWidget {
     return Container(
         padding: EdgeInsets.all(10.0),
         child: Row(children: <Widget>[
-          _buildLangaugeButton(left),
+          _buildLangaugeButton(ConfigurationService.sourceLanguage),
           SizedBox(width: 10.0),
-          _buildLangaugeButton(right)
+          _buildLangaugeButton(ConfigurationService.targetLanguage)
         ]));
   }
 
   Widget _buildLangaugeButton(Language language) {
+    final text = Languages.shortcode(language);
     VoidCallback onPressed;
     if (selected != language) {
       onPressed = () => onSwitch(language);
     }
     return Expanded(child: OutlineButton(
-      child: Text(language.code.toUpperCase()),
+      child: Text(text),
       disabledBorderColor: CupertinoColors.inactiveGray,
       disabledTextColor: CupertinoColors.black,
       splashColor: CupertinoColors.white,

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
+import '../services/ConfigurationService.dart';
 import '../services/VocabularyService.dart';
 import 'SectionedTab.dart';
 
@@ -9,7 +10,7 @@ class CategoryMetric extends StatelessWidget {
   final Map<WordCategory, List<WordRelation>> categories;
 
   CategoryMetric() :
-    categories = VocabularyService.instance.categorizedRelations(Language.english);
+    categories = VocabularyService.instance.categorizedRelations(ConfigurationService.sourceLanguage);
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'dart:math';
 
+import '../services/ConfigurationService.dart';
 import '../services/VocabularyService.dart';
 import 'SectionedTab.dart';
 import 'LanguageSwitcher.dart';
@@ -13,13 +14,12 @@ class RetentionMetric extends StatefulWidget {
 
 class RetentionMetricState extends State<RetentionMetric> {
 
-  Language _selectedLanguage = Language.english;
+  Language _selectedLanguage = ConfigurationService.sourceLanguage;
 
   @override
   Widget build(BuildContext context) {
 
     final languageSwitcher = LanguageSwitcher(
-        Language.english, Language.german, 
         selected: _selectedLanguage,
         onSwitch: _switchLanguage
     );
