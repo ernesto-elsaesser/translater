@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'package:xml/xml.dart' as xml;
 
+// This script is used to transform TEI (XML) file retrieved from 
+// https://github.com/freedict/fd-dictionaries into a custom CSV format
+
 IOSink outputSink;
 
 void main(List<String> args) {
