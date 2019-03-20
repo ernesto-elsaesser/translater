@@ -17,12 +17,11 @@ class OfflineDictionary {
     allTranslations[word] = wordTranslations;
   }
 
-  List<TranslationOptions> lookup(String query) {
+  TranslationOptions lookup(String query) {
     final results = allTranslations[query];
-    if (results == null) return [];
+    if (results == null) return null;
     final word = Word(query, direction.from);
     final translations = results.map((t) => Word(t, direction.to)).toList();
-    final options = TranslationOptions(word, translations);
-    return [options];
+    return TranslationOptions(word, translations);
   }
 }

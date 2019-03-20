@@ -4,7 +4,7 @@ import '../services/DictionaryService.dart';
 import '../services/VocabularyService.dart';
 import 'SectionedTab.dart';
 import 'WordList.dart';
-import 'BilingualSearchField.dart';
+import 'SearchField.dart';
 
 class SearchTab extends StatefulWidget {
   @override
@@ -18,7 +18,7 @@ class SearchTabState extends State<SearchTab> {
 
   @override
   Widget build(BuildContext context) {
-    final searchBar = BilingualSearchField(_lookup);
+    final searchBar = SearchField(_lookup);
     List<Widget> sections = [searchBar];
 
     if (_isLoading) {
@@ -66,14 +66,14 @@ class SearchTabState extends State<SearchTab> {
       onTap: onTap);
   }
 
-  void _lookup(SearchDirection direction, String query) async {
+  void _lookup(String query) async {
     if (query.isEmpty) {
       return;
     }
     setState(() {
       _isLoading = true;
     });
-    final results = await DictionaryService.instance.getTranslations(direction, query);
+    final results = await DictionaryService.instance.getTranslations(query);
     setState(() {
       _isLoading = false;
       _results = results;

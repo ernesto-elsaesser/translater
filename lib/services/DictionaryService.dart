@@ -6,5 +6,5 @@ export '../model/LinguisticModel.dart';
 abstract class DictionaryService {
 
   static DictionaryService instance;
-  Future<List<TranslationOptions>> getTranslations(SearchDirection direction, String query);
+  Future<List<TranslationOptions>> getTranslations(String query);
 }

@@ -3,22 +3,28 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import 'DictionaryService.dart';
+import 'ConfigurationService.dart';
 import '../model/OxfordDictionaryModel.dart';
 
 class OnlineDictionaryService extends DictionaryService {
 
   @override
-  Future<List<TranslationOptions>> getTranslations(SearchDirection direction, String query) async {
-    final fromCode = shortcode(direction.from);
-    final toCode = shortcode(direction.to);
-    final path = 'entries/$fromCode/$query/translations=$toCode';
+  Future<List<TranslationOptions>> getTranslations(String query) async {
+    final directions = ConfigurationService.supportedDirections;
+    final requests = directions.map( (dir) => _fetchTranslations(dir, query) );
+    final results = await Future.wait(requests);
+    return results.expand( (r) => r ).toList();
+  }
+
+  Future<List<TranslationOptions>> _fetchTranslations(SearchDirection dir, String query) async {
+    final path = 'entries/${shortcode(dir.from)}/$query/translations=${shortcode(dir.to)}';
     final json = await _request(path);
     if (json == null) {
       return [];
     }
     final res = TranslationsResponse.fromJson(json);
     final entries = res.results.expand((r) => r.lexicalEntries);
-    return entries.map((le) => _parseLexicalEntry(le, direction)).toList();
+    return entries.map((le) => _parseLexicalEntry(le, dir)).toList();
   }
 
   Future<Map<String, dynamic>> _request(String subpath) async {
