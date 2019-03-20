@@ -1,5 +1,5 @@
 [
-  ["Utensilien", 1, "paraphernalia", 0, "2018-11-01 00:00:01Z"],
+  ["Zubehör", 1, "paraphernalia", 0, "2018-11-01 00:00:01Z"],
   ["erwidern", 1, "reciprocate", 0, "2018-11-01 00:00:01Z"],
   ["anzetteln", 1, "instigate", 0, "2018-11-01 00:00:01Z"],
   ["Wippe", 1, "seesaw", 0, "2018-11-01 00:00:01Z"],
@@ -27,7 +27,7 @@
   ["Haselnuss", 1, "cobnut", 0, "2019-03-01 00:00:01Z"],
   ["Verschiedenes", 1, "sundries", 0, "2019-03-01 00:00:01Z"],
   ["Eimer", 1, "pail", 0, "2019-03-01 00:00:01Z"],
-  ["hinterlassen", 1, "bequeath", 0, "2019-03-01 00:00:01Z"],
+  ["vermachen", 1, "bequeath", 0, "2019-03-01 00:00:01Z"],
   ["ermahnen", 1, "admonish", 0, "2019-03-01 00:00:01Z"],
   ["züchtigen", 1, "chastise", 0, "2019-03-01 00:00:01Z"],
   ["Eingeweide", 1, "entrails", 0, "2019-03-01 00:00:01Z"],

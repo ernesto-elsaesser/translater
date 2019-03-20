@@ -16,9 +16,9 @@ class LanguageSwitcher extends StatelessWidget {
     return Container(
         padding: EdgeInsets.all(10.0),
         child: Row(children: <Widget>[
-          _buildLangaugeButton(ConfigurationService.sourceLanguage),
+          _buildLangaugeButton(ConfigurationService.targetLanguage),
           SizedBox(width: 10.0),
-          _buildLangaugeButton(ConfigurationService.targetLanguage)
+          _buildLangaugeButton(ConfigurationService.sourceLanguage)
         ]));
   }
 

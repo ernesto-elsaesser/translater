@@ -13,7 +13,7 @@ class VocabularyTab extends StatefulWidget {
 
 class VocabularyTabState extends State<VocabularyTab> {
 
-  Language _selectedLanguage = ConfigurationService.sourceLanguage;
+  Language _selectedLanguage = ConfigurationService.targetLanguage;
 
   @override
   Widget build(BuildContext context) {

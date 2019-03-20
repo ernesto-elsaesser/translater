@@ -18,7 +18,7 @@ class WordTestState extends State<WordTest> {
   final List<WordRelation> relations;
   TextEditingController _textController = TextEditingController();
   int _index = 0;
-  int _correctAnswers = 0;
+  List<String> _wrongAnswers = [];
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +33,7 @@ class WordTestState extends State<WordTest> {
 
   List<Widget> _buildTestForm() {
     final word = relations[_index].word.text;
+    final isLast = _index == relations.length - 1;
     final inputForm = Row(children: <Widget>[
       Expanded(child: 
         CupertinoTextField(
@@ -40,7 +41,7 @@ class WordTestState extends State<WordTest> {
           decoration: BoxDecoration(border: Border.all()) ,
         )),
       CupertinoButton(
-        child: Text("Next"), 
+        child: Text(isLast ? "Finish" : "Next"), 
         onPressed: _checkAndProceed)
     ]);
     return [
@@ -52,23 +53,34 @@ class WordTestState extends State<WordTest> {
   }
 
   List<Widget> _buildResults() {
-    final percentage = (_correctAnswers * 100) ~/ relations.length;
+    final correctAnswers = relations.length - _wrongAnswers.length;
+    final percentage = (correctAnswers * 100) ~/ relations.length;
     final resultStyle = TextStyle(fontSize: 32, fontWeight: FontWeight.bold);
+    final wrongLines = _wrongAnswers.join('\n');
+    final wrongStyle = TextStyle(fontSize: 16, color: CupertinoColors.destructiveRed);
     return [
       SizedBox(height: 30),
       Center(child: Text("Retention:")),
       SizedBox(height: 20),
-      Text("$percentage %", style: resultStyle)
+      Text("$percentage %", style: resultStyle),
+      SizedBox(height: 30),
+      Center(child: Text("Wrong answers:")),
+      SizedBox(height: 20),
+      Text(wrongLines, style: wrongStyle)
     ];
   }
 
   void _checkAndProceed() {
-    final translation = relations[_index].translation.text;
-    var correctDelta = _textController.text == translation ? 1 : 0;
+    final relation = relations[_index];
+    final question = relation.word.text;
+    final givenAnswer = _textController.text;
+    final correctAnswer = relation.translation.text;
     _textController.text = "";
     setState(() {
       _index += 1;
-      _correctAnswers += correctDelta;
+      if (givenAnswer != correctAnswer) {
+        _wrongAnswers.add(question + ' - ' + correctAnswer + ' (' + givenAnswer + ')');
+      }
     });
   }
 }

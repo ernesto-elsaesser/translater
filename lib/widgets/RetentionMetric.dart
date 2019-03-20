@@ -14,7 +14,7 @@ class RetentionMetric extends StatefulWidget {
 
 class RetentionMetricState extends State<RetentionMetric> {
 
-  Language _selectedLanguage = ConfigurationService.sourceLanguage;
+  Language _selectedLanguage = ConfigurationService.targetLanguage;
 
   @override
   Widget build(BuildContext context) {
