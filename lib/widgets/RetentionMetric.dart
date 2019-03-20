@@ -27,22 +27,27 @@ class RetentionMetricState extends State<RetentionMetric> {
     List<Widget> sections = [
       SizedBox(height: 50),
       Text("Measure Retention:"),
-      SizedBox(height: 50),
-      Center(child: CupertinoButton.filled(
-        child: Text("Test 5 random words"),
-        onPressed: () => _shortTest(context))
-      ),
+      SizedBox(height: 40),
+      _buildButton("SHORT TEST", () => _shortTest(context)),
       SizedBox(height: 20),
-      Center(child: CupertinoButton.filled(
-        child: Text("Test all words"),
-        onPressed: () => _fullTest(context))
-      ),
+      _buildButton("FULL TEST", () => _fullTest(context)),
       SizedBox(height: 50),
-      Text("Source Language"),
-      SizedBox(height: 10),
-      languageSwitcher,
+      Text("Source Language:"),
+      SizedBox(height: 20),
+      Container(padding: EdgeInsets.symmetric(horizontal: 30) , child: languageSwitcher),
     ];
     return SectionedTab(sections);
+  }
+
+  Widget _buildButton(String text, VoidCallback onPressed) {
+    final textStyle = TextStyle(color: CupertinoColors.white);
+    return Center(child: CupertinoButton(
+      color: Color(0xFF8080C0),
+      child: SizedBox(
+        width: 150, 
+        child: Center(child: Text(text, style: textStyle))),
+      onPressed: onPressed)
+    );
   }
 
   void _switchLanguage(Language language) {

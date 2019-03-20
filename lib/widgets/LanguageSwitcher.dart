@@ -23,15 +23,17 @@ class LanguageSwitcher extends StatelessWidget {
   }
 
   Widget _buildLangaugeButton(Language language) {
+    final borderSide = BorderSide(width: 2.0, color: CupertinoColors.lightBackgroundGray);
     VoidCallback onPressed;
     if (selected != language) {
       onPressed = () => onSwitch(language);
     }
     return Expanded(child: OutlineButton(
       child: Text(shortcode(language, upper: true)),
-      disabledBorderColor: CupertinoColors.inactiveGray,
+      disabledBorderColor: Color(0xFF6060A0),
       disabledTextColor: CupertinoColors.black,
       splashColor: CupertinoColors.white,
+      borderSide: borderSide,
       onPressed: onPressed));
   }
 }
