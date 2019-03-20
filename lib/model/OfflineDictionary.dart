@@ -3,16 +3,26 @@ import 'LinguisticModel.dart';
 class OfflineDictionary {
 
   final SearchDirection direction;
-  final Map<String, String> translations;
+  Map<String, List<String>> allTranslations = {};
 
-  OfflineDictionary(this.direction, this.translations);
+  OfflineDictionary(this.direction);
+
+  void insert(String word, String translation) {
+    var wordTranslations = allTranslations[word];
+    if (wordTranslations == null) {
+      wordTranslations = [translation];
+    } else {
+      wordTranslations.add(translation);
+    }
+    allTranslations[word] = wordTranslations;
+  }
 
   List<TranslationOptions> lookup(String query) {
-    final result = translations[query];
-    if (result == null) return [];
+    final results = allTranslations[query];
+    if (results == null) return [];
     final word = Word(query, direction.from);
-    final translation = Word(result, direction.to);
-    final options = TranslationOptions(word, [translation]);
+    final translations = results.map((t) => Word(t, direction.to)).toList();
+    final options = TranslationOptions(word, translations);
     return [options];
   }
 }
