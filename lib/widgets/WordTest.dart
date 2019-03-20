@@ -5,19 +5,17 @@ import 'SectionedTab.dart';
 
 class WordTest extends StatefulWidget {
 
-  WordTest(this.relations, {@required this.onFinished});
+  WordTest(this.relations);
   final List<WordRelation> relations;
-  final Function(int) onFinished;
 
   @override
-  WordTestState createState() => WordTestState(relations, onFinished);
+  WordTestState createState() => WordTestState(relations);
 }
 
 class WordTestState extends State<WordTest> {
 
-  WordTestState(this.relations, this.onFinished);
+  WordTestState(this.relations);
   final List<WordRelation> relations;
-  final Function(int) onFinished;
   TextEditingController _textController = TextEditingController();
   int _index = 0;
   int _correctAnswers = 0;
