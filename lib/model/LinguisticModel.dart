@@ -21,43 +21,11 @@ class SearchDirection {
   bool operator ==(o) => o is SearchDirection && o.hashCode == hashCode;
 }
 
-enum WordCategory { noun, verb, adjective, unknown }
-
-class WordCategories {
-
-  static WordCategory fromName(String categoryName) {
-    switch (categoryName) {
-      case "Noun":
-        return WordCategory.noun;
-      case "Verb":
-        return WordCategory.verb;
-      case "Adjective":
-        return WordCategory.adjective;
-      default:
-        return WordCategory.unknown;
-    }
-  }
-
-  static String name(WordCategory category) {
-    switch (category) {
-      case WordCategory.noun:
-        return "Noun";
-      case WordCategory.verb:
-        return "Verb";
-      case WordCategory.adjective:
-        return "Adjective";
-      case WordCategory.unknown:
-        return "Unknown";
-    }
-  }
-}
-
 class Word implements Comparable<Word> {
   String text;
   Language language;
-  WordCategory category;
 
-  Word(this.text, this.language, this.category);
+  Word(this.text, this.language);
 
   int get hashCode => text.hashCode ^ language.hashCode;
   bool operator ==(o) => o is Word && o.text == text && o.language == language;
@@ -75,18 +43,14 @@ class WordRelation implements Comparable<WordRelation> {
   Word word;
   Word translation;
   DateTime addedAt;
-  WordCategory category;
 
   WordRelation(this.word, this.translation) : 
-    addedAt = DateTime.now(),
-    category = word.category;
+    addedAt = DateTime.now();
 
   WordRelation.fromJson(List<dynamic> json) {
-    int catIndex = json[4];
-    category = WordCategory.values[catIndex];
-    word = Word(json[0], Language.values[json[1]], category);
-    translation = Word(json[2], Language.values[json[3]], category);
-    addedAt = DateTime.parse(json[5]);
+    word = Word(json[0], Language.values[json[1]]);
+    translation = Word(json[2], Language.values[json[3]]);
+    addedAt = DateTime.parse(json[4]);
   }
 
   List<dynamic> toJson() {
@@ -94,8 +58,7 @@ class WordRelation implements Comparable<WordRelation> {
       word.text, 
       word.language.index, 
       translation.text, 
-      translation.language.index, 
-      category.index,
+      translation.language.index,
       addedAt.toString()];
   }
 

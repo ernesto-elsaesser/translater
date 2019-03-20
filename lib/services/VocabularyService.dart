@@ -82,21 +82,6 @@ class VocabularyService with WidgetsBindingObserver {
     return _relationsFromLanguage[language] ?? [];
   }
 
-  Map<WordCategory, List<WordRelation>> categorizedRelations(Language language) {
-    Map<WordCategory, List<WordRelation>> categorizedRelations = {};
-    for (final cat in WordCategory.values) {
-      categorizedRelations[cat] = [];
-    }
-    final translationsFromLanguage = _relationsFromLanguage[language];
-    if (translationsFromLanguage != null) {
-      for (final t in translationsFromLanguage) {
-        categorizedRelations[t.category].add(t);
-      }
-    }
-    categorizedRelations.remove(WordCategory.unknown);
-    return categorizedRelations;
-  }
-
   int translationCount({DateTime before}) {
     if (before == null) {
       return _rawRelations.length;

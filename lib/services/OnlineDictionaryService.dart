@@ -36,12 +36,11 @@ class OnlineDictionaryService extends DictionaryService {
   }
 
   TranslationOptions _parseLexicalEntry(LexicalEntry entry, SearchDirection direction) {
-    final category = WordCategories.fromName(entry.lexicalCategory);
-    final word = Word(entry.text, direction.from, category);
+    final word = Word(entry.text, direction.from);
     final rawTranslations =
         entry.entries.expand((e) => e.senses).expand((s) => s.translations);
     final translations =
-        rawTranslations.map((t) => Word(t.text, direction.to, category)).toList();
+        rawTranslations.map((t) => Word(t.text, direction.to)).toList();
     return TranslationOptions(word, translations);
   }
 }
