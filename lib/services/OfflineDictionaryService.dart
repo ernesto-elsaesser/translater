@@ -15,7 +15,7 @@ class OfflineDictionaryService extends DictionaryService {
   
   @override
   Future<List<TranslationOptions>> getTranslations(String query) {
-    final results = dictionaries.map( (d) => d.lookup(query) ).where( (r) => r != null ).toList();
+    final results = dictionaries.expand( (d) => d.lookup(query) ).toList();
     return Future.value(results);
   }
 
