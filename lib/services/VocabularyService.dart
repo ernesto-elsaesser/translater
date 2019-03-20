@@ -6,8 +6,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 
-import '../model/VocabularyModel.dart';
-export '../model/VocabularyModel.dart';
+import '../model/LinguisticModel.dart';
+export '../model/LinguisticModel.dart';
 
 class VocabularyService with WidgetsBindingObserver {
 
@@ -93,7 +93,7 @@ class VocabularyService with WidgetsBindingObserver {
         categorizedRelations[t.category].add(t);
       }
     }
-    categorizedRelations.remove(WordCategory.other);
+    categorizedRelations.remove(WordCategory.unknown);
     return categorizedRelations;
   }
 

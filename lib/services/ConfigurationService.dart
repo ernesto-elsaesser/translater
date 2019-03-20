@@ -1,7 +1,8 @@
-import '../model/VocabularyModel.dart';
+import '../model/LinguisticModel.dart';
+export '../model/LinguisticModel.dart';
 
 class ConfigurationService {
 
-  static var sourceLanguage = Language.german;
-  static var targetLanguage = Language.english;
+  static Language sourceLanguage = Language.german;
+  static Language targetLanguage = Language.english;
 }

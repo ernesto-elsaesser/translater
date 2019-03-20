@@ -1,21 +1,27 @@
 enum Language { english, german }
 
-class Languages {
-
-  static String shortcode(Language language) {
-    switch (language) {
-      case Language.english: return 'EN';
-      case Language.german: return 'DE';
-    }
+String shortcode(Language language, {int length = 2, bool upper = false}) {
+  String code = '';
+  switch (language) {
+    case Language.english: code = 'english'; break;
+    case Language.german: code = 'deutsch'; break;
   }
+  if (upper) {
+    code = code.toUpperCase();
+  }
+  return code.substring(0, length);
 }
 
 class SearchDirection {
   Language from, to;
   SearchDirection(this.from, this.to);
+
+  String toString() => "${shortcode(from, upper: true)} > ${shortcode(to, upper: true)}";
+  int get hashCode => from.index * 100 + to.index;
+  bool operator ==(o) => o is SearchDirection && o.hashCode == hashCode;
 }
 
-enum WordCategory { noun, verb, adjective, other }
+enum WordCategory { noun, verb, adjective, unknown }
 
 class WordCategories {
 
@@ -28,7 +34,7 @@ class WordCategories {
       case "Adjective":
         return WordCategory.adjective;
       default:
-        return WordCategory.other;
+        return WordCategory.unknown;
     }
   }
 
@@ -40,8 +46,8 @@ class WordCategories {
         return "Verb";
       case WordCategory.adjective:
         return "Adjective";
-      case WordCategory.other:
-        return "Other";
+      case WordCategory.unknown:
+        return "Unknown";
     }
   }
 }

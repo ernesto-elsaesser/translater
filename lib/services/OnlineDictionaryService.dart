@@ -4,14 +4,13 @@ import 'package:http/http.dart' as http;
 
 import 'DictionaryService.dart';
 import '../model/OxfordDictionaryModel.dart';
-import '../model/VocabularyModel.dart';
 
 class OnlineDictionaryService extends DictionaryService {
 
   @override
   Future<List<TranslationOptions>> getTranslations(SearchDirection direction, String query) async {
-    final fromCode = _langageCode(direction.from);
-    final toCode = _langageCode(direction.to);
+    final fromCode = shortcode(direction.from);
+    final toCode = shortcode(direction.to);
     final path = 'entries/$fromCode/$query/translations=$toCode';
     final json = await _request(path);
     if (json == null) {
@@ -20,13 +19,6 @@ class OnlineDictionaryService extends DictionaryService {
     final res = TranslationsResponse.fromJson(json);
     final entries = res.results.expand((r) => r.lexicalEntries);
     return entries.map((le) => _parseLexicalEntry(le, direction)).toList();
-  }
-
-  String _langageCode(Language language) {
-    switch (language) {
-      case Language.english: return 'en';
-      case Language.german: return 'de';
-    }
   }
 
   Future<Map<String, dynamic>> _request(String subpath) async {

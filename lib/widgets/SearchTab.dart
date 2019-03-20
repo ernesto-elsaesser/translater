@@ -44,9 +44,8 @@ class SearchTabState extends State<SearchTab> {
   }
 
   HeaderItem _makeHeader(Word word) {
-    final languageCode = Languages.shortcode(word.language);
-    final categoryName = WordCategories.name(word.category);
-    final text = "$languageCode: ${word.text} [$categoryName]";
+    final languageCode = shortcode(word.language, upper: true);
+    final text = "$languageCode: ${word.text}";
     return HeaderItem(text: text);
   }
 

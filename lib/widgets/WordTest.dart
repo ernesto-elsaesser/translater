@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-import '../model/VocabularyModel.dart';
+import '../model/LinguisticModel.dart';
 import 'SectionedTab.dart';
 
 class WordTest extends StatefulWidget {

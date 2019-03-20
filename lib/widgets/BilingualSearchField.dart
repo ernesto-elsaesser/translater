@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 
-import '../model/VocabularyModel.dart';
 import '../services/ConfigurationService.dart';
 
 class BilingualSearchField extends StatelessWidget {
@@ -23,13 +22,11 @@ class BilingualSearchField extends StatelessWidget {
   }
 
   Widget _buildSearchField(Language from, Language to) {
-    final fromCode = Languages.shortcode(from);
-    final toCode = Languages.shortcode(to);
     final direction = SearchDirection(from, to);
     return Expanded(child: Container(
             color: CupertinoColors.white,
             child: CupertinoTextField(
-                placeholder: "$fromCode > $toCode",
+                placeholder: "$direction",
                 decoration: null,
                 clearButtonMode: OverlayVisibilityMode.editing,
                 autocorrect: false,

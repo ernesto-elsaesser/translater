@@ -5,6 +5,8 @@ import 'SearchTab.dart';
 import 'VocabularyTab.dart';
 import 'MetricsTab.dart';
 import '../services/VocabularyService.dart';
+import '../services/DictionaryService.dart';
+import '../services/OfflineDictionaryService.dart';
 
 class Tab {
   String title;
@@ -25,6 +27,7 @@ class TranslaterAppState extends State<TranslaterApp> {
 
   @override
   void initState() {
+    DictionaryService.instance = OfflineDictionaryService();
     _tabs = [
       Tab('Translate', CupertinoIcons.search, (_) => SearchTab()),
       Tab('Vocabulary', CupertinoIcons.book, (_) => VocabularyTab()),
